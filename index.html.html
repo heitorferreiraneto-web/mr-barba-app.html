@@ -1,0 +1,1627 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mr. Barba Valinhos — Seu visual na régua, sua confiança no topo.</title>
+  <meta name="theme-color" content="#020617" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #020617;
+      color: #f8fafc;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 antialiased">
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useMemo } = React;
+
+    // =========================================================================
+    // STORAGE LOCAL & CONSTANTES DEMO
+    // =========================================================================
+    const STORAGE_KEYS = {
+      APPOINTMENTS: 'mr_barba_valinhos_html_appointments_v1',
+      BARBERS: 'mr_barba_valinhos_html_barbers_v1',
+      SERVICES: 'mr_barba_valinhos_html_services_v1',
+      SHOP: 'mr_barba_valinhos_html_shop_v1',
+      FACE_SHAPES: 'mr_barba_valinhos_html_face_shapes_v1',
+      COURSES: 'mr_barba_valinhos_html_courses_v1',
+      REVIEWS: 'mr_barba_valinhos_html_reviews_v1'
+    };
+
+    const DEMO_PIN = '1234';
+
+    function loadFromStorage(key, fallback) {
+      try {
+        const raw = window.localStorage.getItem(key);
+        if (!raw) return fallback;
+        const parsed = JSON.parse(raw);
+        return parsed !== null && parsed !== undefined ? parsed : fallback;
+      } catch (err) {
+        return fallback;
+      }
+    }
+
+    function saveToStorage(key, value) {
+      try {
+        window.localStorage.setItem(key, JSON.stringify(value));
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    // =========================================================================
+    // DADOS OFICIAIS — MR. BARBA VALINHOS
+    // =========================================================================
+    const INITIAL_SHOP_INFO = {
+      name: 'Mr. Barba Valinhos',
+      badge: 'MR',
+      slogan: 'Seu visual na régua, sua confiança no topo.',
+      city: 'Valinhos',
+      state: 'SP',
+      address: 'R. Amábile Bersan dos Santos, 163 - Jardim Imperial, Valinhos - SP, 13274-465',
+      phone: '(19) 98215-1540',
+      whatsappNumber: '5519982151540',
+      instagram: '@mrbarba.valinhos',
+      mapsQuery: 'R. Amábile Bersan dos Santos, 163 - Jardim Imperial, Valinhos - SP, 13274-465',
+      heroImage: 'https://images.unsplash.com/photo-1585747860715-2ba37e788b70?auto=format&fit=crop&w=1400&q=80',
+      gallery: [
+        {
+          id: 'gal-1',
+          url: 'https://images.unsplash.com/photo-1585747860715-2ba37e788b70?auto=format&fit=crop&w=900&q=80',
+          caption: 'Ambiente principal da Mr. Barba — Seu visual na régua, sua confiança no topo.'
+        },
+        {
+          id: 'gal-2',
+          url: 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=900&q=80',
+          caption: 'Estação de corte e precisão na navalha em Valinhos/SP'
+        },
+        {
+          id: 'gal-3',
+          url: 'https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&w=900&q=80',
+          caption: 'Cadeiras e barboterapia com toalha quente'
+        },
+        {
+          id: 'gal-4',
+          url: 'https://images.unsplash.com/photo-1599351431202-1e0f0137899a?auto=format&fit=crop&w=900&q=80',
+          caption: 'Acabamento de degradê e visagismo masculino'
+        }
+      ],
+      hoursSummary: [
+        { days: 'Terça a Sexta', hours: '09:00 – 20:00' },
+        { days: 'Sábado', hours: '08:30 – 18:00' },
+        { days: 'Domingo e Segunda', hours: 'Fechado' }
+      ]
+    };
+
+    const INITIAL_FACE_SHAPES = [
+      {
+        id: 'oval',
+        name: 'Oval',
+        tagline: 'Proporção equilibrada — liberdade total com estrutura',
+        photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=700&q=80',
+        description: 'O rosto oval possui proporções harmônicas entre testa, maçãs do rosto e queixo. Funciona com quase todos os cortes, bastando alinhar o volume superior e a barba ao estilo pessoal.',
+        strengths: ['Alta versatilidade de cortes', 'Bom equilíbrio de linhas', 'Adapta-se a estilos clássicos ou modernos'],
+        avoid: ['Excesso de volume no topo que alongue demais sem necessidade'],
+        recommendedServiceIds: ['srv-low-fade', 'srv-social', 'srv-surfista', 'srv-barba-cerrada', 'srv-combo-alfa']
+      },
+      {
+        id: 'quadrado',
+        name: 'Quadrado',
+        tagline: 'Mandíbula marcada — valoriza linhas firmes e fades limpos',
+        photo: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=700&q=80',
+        description: 'Caracterizado por testa larga e maxilar definido. Cortes com laterais bem trabalhadas e topo estruturado reforçam a masculinidade sem pesar.',
+        strengths: ['Maxilar forte e fotogênico', 'Excelente encaixe de fades e laterais curtas', 'Barba desenhada valoriza ainda mais o queixo'],
+        avoid: ['Laterais muito cheias e redondas que escondam o desenho do rosto'],
+        recommendedServiceIds: ['srv-mid-fade', 'srv-buzz-cut', 'srv-undercut', 'srv-barba-navalha', 'srv-barboterapia']
+      },
+      {
+        id: 'redondo',
+        name: 'Redondo',
+        tagline: 'Linhas suaves — cria altura e ângulo para alongar o visual',
+        photo: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=700&q=80',
+        description: 'Largura e comprimento semelhantes com contornos suaves. O segredo do visagismo aqui é criar sensação vertical no topo e laterais mais limpas.',
+        strengths: ['Visual jovem e acessível', 'Ganha definição com laterais baixas/médias', 'Barba levemente alongada ajuda a estruturar'],
+        avoid: ['Cortes muito arredondados nas laterais ou franjas pesadas'],
+        recommendedServiceIds: ['srv-high-fade', 'srv-pompadour', 'srv-mullet', 'srv-cavanhaque', 'srv-barba-lenhador']
+      },
+      {
+        id: 'triangular',
+        name: 'Triangular',
+        tagline: 'Base mais larga ou testa ampla — equilibra volume superior e inferior',
+        photo: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=700&q=80',
+        description: 'Pode apresentar mandíbula mais larga que a testa ou testa mais ampla que o queixo. O equilíbrio vem de distribuir o volume corretamente.',
+        strengths: ['Personalidade marcante', 'Ótima resposta a transições suaves', 'Barba equilibrada harmoniza o contorno'],
+        avoid: ['Contrastes extremos mal posicionados'],
+        recommendedServiceIds: ['srv-taper-fade', 'srv-french-crop', 'srv-nudred', 'srv-barba-cerrada', 'srv-sobrancelha']
+      },
+      {
+        id: 'oblongo',
+        name: 'Oblongo',
+        tagline: 'Rosto mais alongado — adiciona largura lateral e equilíbrio',
+        photo: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=700&q=80',
+        description: 'Mais comprido do que largo. Cortes com laterais um pouco mais presentes, franja ou textura frontal e barba nas laterais equilibram o comprimento.',
+        strengths: ['Elegância natural', 'Excelente para cortes texturizados com franja', 'Barba nas laterais amplia a harmonia'],
+        avoid: ['Topetes excessivamente altos'],
+        recommendedServiceIds: ['srv-french-crop', 'srv-taper-fade', 'srv-social', 'srv-barba-lenhador', 'srv-hidratacao']
+      }
+    ];
+
+    const INITIAL_BARBERS = [
+      {
+        id: 'barb-1',
+        name: 'Rafael Costa',
+        role: 'Master Barber & Visagista',
+        specialty: 'Degradê na Navalha, Visagismo e Barboterapia',
+        bio: 'Especialista em leitura de formato de rosto, acabamentos de alta precisão e atendimento consultivo em Valinhos.',
+        avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=500&q=80',
+        active: true,
+        workingDays: [2, 3, 4, 5, 6],
+        workStart: '09:00',
+        workEnd: '20:00',
+        slotIntervalMinutes: 30
+      },
+      {
+        id: 'barb-2',
+        name: 'Lucas Almeida',
+        role: 'Especialista em Fade, Coloração & Freestyle',
+        specialty: 'Mid/High Fade, Luzes/Platinado e Barba Alinhada',
+        bio: 'Referência em transições limpas, coloração masculina sem ressecamento e manutenção de estilo.',
+        avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=500&q=80',
+        active: true,
+        workingDays: [2, 3, 4, 5, 6],
+        workStart: '09:30',
+        workEnd: '20:00',
+        slotIntervalMinutes: 30
+      },
+      {
+        id: 'barb-3',
+        name: 'Thiago Mendes',
+        role: 'Barbeiro Clássico & Instrutor da Academia',
+        specialty: 'Corte Social na Tesoura, Barba Lenhador e Formação',
+        bio: 'Une técnica clássica de tesoura e navalha com didática prática na formação de novos barbeiros.',
+        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=500&q=80',
+        active: true,
+        workingDays: [2, 3, 4, 5, 6],
+        workStart: '09:00',
+        workEnd: '19:30',
+        slotIntervalMinutes: 30
+      }
+    ];
+
+    const INITIAL_SERVICES = [
+      { id: 'srv-low-fade', name: 'Low Fade (Degradê Baixo)', category: 'Cortes', price: 55, durationMinutes: 40, photo: 'https://images.unsplash.com/photo-1622286342621-4bd786c2447c?auto=format&fit=crop&w=650&q=80', visagismTip: 'Preserva densidade lateral e traz limpeza sofisticada.', description: 'Degradê baixo com transição suave na máquina e navalha.' },
+      { id: 'srv-mid-fade', name: 'Mid Fade (Degradê Médio)', category: 'Cortes', price: 58, durationMinutes: 40, photo: 'https://images.unsplash.com/photo-1599351431202-1e0f0137899a?auto=format&fit=crop&w=650&q=80', visagismTip: 'Destaca a estrutura óssea com contraste moderno.', description: 'Degradê médio equilibrado com acabamento nítido no contorno.' },
+      { id: 'srv-high-fade', name: 'High Fade (Degradê Alto)', category: 'Cortes', price: 60, durationMinutes: 40, photo: 'https://images.unsplash.com/photo-1605497788044-5a32c7078486?auto=format&fit=crop&w=650&q=80', visagismTip: 'Alonga visualmente rostos redondos.', description: 'Degradê alto com acabamento navalhado e finalização.' },
+      { id: 'srv-taper-fade', name: 'Taper Fade (Laterais/Nuca)', category: 'Cortes', price: 55, durationMinutes: 35, photo: 'https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&w=650&q=80', visagismTip: 'Ideal para rostos oblongos mantendo comprimento lateral.', description: 'Sombreamento discreto nas costeletas e nuca.' },
+      { id: 'srv-social', name: 'Social Clássico na Tesoura', category: 'Cortes', price: 50, durationMinutes: 35, photo: 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=650&q=80', visagismTip: 'Alinhamento executivo e atemporal.', description: 'Corte tradicional na tesoura com acabamento limpo.' },
+      { id: 'srv-french-crop', name: 'French Crop / Franja Texturizada', category: 'Cortes', price: 58, durationMinutes: 40, photo: 'https://images.unsplash.com/photo-1517832606299-7ae9b720a186?auto=format&fit=crop&w=650&q=80', visagismTip: 'Quebra o comprimento vertical e suaviza a testa.', description: 'Laterais degradê com topo repicado e franja texturizada.' },
+      { id: 'srv-pompadour', name: 'Pompadour / Topete Estruturado', category: 'Cortes', price: 60, durationMinutes: 40, photo: 'https://images.unsplash.com/photo-1534297635766-a262cdcb8ee4?auto=format&fit=crop&w=650&q=80', visagismTip: 'Eleva o eixo vertical favorecendo rostos redondos.', description: 'Topete volumoso e alinhado com laterais limpas.' },
+      { id: 'srv-undercut', name: 'Undercut Conectado', category: 'Cortes', price: 55, durationMinutes: 40, photo: 'https://images.unsplash.com/photo-1567894340315-735d7c361db0?auto=format&fit=crop&w=650&q=80', visagismTip: 'Valoriza maxilar definido.', description: 'Laterais uniformes e topo versátil.' },
+      { id: 'srv-buzz-cut', name: 'Buzz Cut / Militar Alinhado', category: 'Cortes', price: 42, durationMinutes: 25, photo: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=650&q=80', visagismTip: 'Destaca mandíbula forte com praticidade máxima.', description: 'Corte curto uniforme com desenho preciso de contorno.' },
+      { id: 'srv-surfista', name: 'Médio Texturizado / Surfista', category: 'Cortes', price: 58, durationMinutes: 45, photo: 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?auto=format&fit=crop&w=650&q=80', visagismTip: 'Camadas leves com movimento natural.', description: 'Comprimento médio em camadas.' },
+      { id: 'srv-mullet', name: 'Mullet Moderno', category: 'Cortes', price: 62, durationMinutes: 45, photo: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=650&q=80', visagismTip: 'Linhas dinâmicas que afinam visualmente as bochechas.', description: 'Laterais curtas, topo texturizado e nuca alongada.' },
+      { id: 'srv-nudred', name: 'Nudred / Esponja Texturizada', category: 'Cortes', price: 55, durationMinutes: 35, photo: 'https://images.unsplash.com/photo-1531384441138-2736e62e0919?auto=format&fit=crop&w=650&q=80', visagismTip: 'Define cachos e crespos com desenho geométrico.', description: 'Modelagem com esponja texturizadora.' },
+      { id: 'srv-barba-cerrada', name: 'Barba Cerrada / Boxed', category: 'Barbas', price: 42, durationMinutes: 30, photo: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=650&q=80', visagismTip: 'Linha limpa na maçã do rosto e pescoço.', description: 'Aparagem uniforme e acabamento na navalha.' },
+      { id: 'srv-barba-lenhador', name: 'Barba Lenhador (Cheia)', category: 'Barbas', price: 48, durationMinutes: 35, photo: 'https://images.unsplash.com/photo-1518806192004-4fda86f789a1?auto=format&fit=crop&w=650&q=80', visagismTip: 'Dá largura lateral e estrutura o queixo.', description: 'Modelagem de barba cheia com óleo hidratante.' },
+      { id: 'srv-cavanhaque', name: 'Cavanhaque / Bigode Estruturado', category: 'Barbas', price: 38, durationMinutes: 25, photo: 'https://images.unsplash.com/photo-1463453091185-61582044d556?auto=format&fit=crop&w=650&q=80', visagismTip: 'Alonga sutilmente rostos redondos.', description: 'Desenho preciso na navalha.' },
+      { id: 'srv-barba-navalha', name: 'Barba Desenhada na Navalha', category: 'Barbas', price: 45, durationMinutes: 30, photo: 'https://images.unsplash.com/photo-1512690459411-b9245aed614b?auto=format&fit=crop&w=650&q=80', visagismTip: 'Realça os ângulos naturais da mandíbula.', description: 'Alinhamento geométrico com loção calmante.' },
+      { id: 'srv-barboterapia', name: 'Barboterapia com Toalha Quente', category: 'Barbas', price: 62, durationMinutes: 45, photo: 'https://images.unsplash.com/photo-1585747860715-2ba37e788b70?auto=format&fit=crop&w=650&q=80', visagismTip: 'Compressas quentes e massagem facial.', description: 'Toalha quente, massagem, óleo nutritivo e navalha.' },
+      { id: 'srv-coloracao', name: 'Coloração / Camuflagem de Brancos', category: 'Coloração & Extras', price: 75, durationMinutes: 50, photo: 'https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?auto=format&fit=crop&w=650&q=80', visagismTip: 'Suaviza fios brancos sem aspecto artificial.', description: 'Coloração masculina ou tonalizante de camuflagem.' },
+      { id: 'srv-luzes', name: 'Luzes / Platinado Masculino', category: 'Coloração & Extras', price: 180, durationMinutes: 120, photo: 'https://images.unsplash.com/photo-1617897903246-719242758050?auto=format&fit=crop&w=650&q=80', visagismTip: 'Ilumina o topo e cria profundidade visual.', description: 'Descoloração controlada com tratamento protetor.' },
+      { id: 'srv-hidratacao', name: 'Hidratação & Selagem Capilar', category: 'Coloração & Extras', price: 65, durationMinutes: 45, photo: 'https://images.unsplash.com/photo-1560869713-7d0a29430803?auto=format&fit=crop&w=650&q=80', visagismTip: 'Devolve maciez e brilho para fios alinhados.', description: 'Reposição hídrica e alinhamento térmico.' },
+      { id: 'srv-sobrancelha', name: 'Sobrancelha na Navalha / Pinça', category: 'Coloração & Extras', price: 22, durationMinutes: 15, photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=650&q=80', visagismTip: 'Abre o olhar e valoriza a expressão.', description: 'Limpeza e alinhamento natural.' },
+      { id: 'srv-combo-alfa', name: 'Combo Mr. Barba (Corte + Barba)', category: 'Combos', price: 92, durationMinutes: 65, photo: 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=650&q=80', visagismTip: 'Harmonia completa entre cabelo e barba.', description: 'Corte personalizado + barba alinhada com toalha quente.' }
+    ];
+
+    const INITIAL_COURSES = [
+      {
+        id: 'crs-1',
+        title: 'Formação Completa: Do Zero ao Barbeiro Profissional',
+        badge: 'Turma Presencial • Valinhos',
+        duration: '8 semanas (64h práticas)',
+        price: 1490,
+        photo: 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=800&q=80',
+        highlights: [
+          'Domínio de máquina, tesoura e navalha com segurança',
+          'Low, Mid, High e Taper Fade sem marcas',
+          'Prática supervisionada em modelos reais na barbearia'
+        ]
+      },
+      {
+        id: 'crs-2',
+        title: 'Workshop Visagismo, Barboterapia & Coloração',
+        badge: 'Especialização Avançada',
+        duration: '3 semanas (24h práticas)',
+        price: 790,
+        photo: 'https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&w=800&q=80',
+        highlights: [
+          'Leitura de formato de cabeça e rosto para indicar cortes',
+          'Protocolo completo de barboterapia e desenho de barba',
+          'Camuflagem de brancos, luzes e fidelização de clientes'
+        ]
+      }
+    ];
+
+    const INITIAL_REVIEWS = [
+      { id: 'rev-1', clientName: 'Henrique Silveira', rating: 5, serviceName: 'Combo Mr. Barba (Corte + Barba)', barberName: 'Rafael Costa', comment: 'Atendimento de primeira em Valinhos. O visagismo acertou meu corte de primeira e a barba ficou na régua.', date: '2026-11-05', reply: 'Valeu, Henrique! Tamo junto — seu visual sempre na régua.' },
+      { id: 'rev-2', clientName: 'Matheus Prado', rating: 5, serviceName: 'Mid Fade (Degradê Médio)', barberName: 'Lucas Almeida', comment: 'Degradê muito limpo, ambiente top e o aviso de retorno ajuda demais a não deixar o corte perder o formato.', date: '2026-11-12', reply: '' },
+      { id: 'rev-3', clientName: 'Diego Furlan', rating: 5, serviceName: 'Barboterapia com Toalha Quente', barberName: 'Thiago Mendes', comment: 'Saí renovado. Toalha quente, acabamento na navalha sem irritar a pele e ótimo atendimento.', date: '2026-11-16', reply: '' }
+    ];
+
+    // =========================================================================
+    // UTILITÁRIOS DE DATA, HORÁRIOS E WHATSAPP
+    // =========================================================================
+    function getTodayISO() {
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, '0');
+      const d = String(now.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
+    function addDaysISO(baseISO, deltaDays) {
+      const [y, m, d] = baseISO.split('-').map(Number);
+      const dt = new Date(y, m - 1, d + deltaDays);
+      return `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}`;
+    }
+
+    function buildInitialAppointments() {
+      const today = getTodayISO();
+      const [, curM, curD] = today.split('-');
+      return [
+        {
+          id: 'apt-demo-1',
+          clientName: 'Rodrigo Tavares',
+          clientPhone: '(19) 99123-4501',
+          birthDate: `${new Date().getFullYear() - 28}-${curM}-${curD}`,
+          serviceIds: ['srv-combo-alfa'],
+          barberId: 'barb-1',
+          date: addDaysISO(today, -30),
+          time: '10:00',
+          totalPrice: 92,
+          totalDurationMinutes: 65,
+          status: 'completed',
+          source: 'app',
+          checkinCode: 'MRB-8412',
+          checkedInByClient: true,
+          faceShape: 'quadrado',
+          returnReminderSent: false,
+          birthdayWishSent: false,
+          createdAt: new Date(Date.now() - 30 * 86400000).toISOString()
+        },
+        {
+          id: 'apt-demo-2',
+          clientName: 'Bruno Nogueira',
+          clientPhone: '(19) 99456-7821',
+          birthDate: '1995-07-19',
+          serviceIds: ['srv-low-fade', 'srv-barba-cerrada'],
+          barberId: 'barb-2',
+          date: addDaysISO(today, -28),
+          time: '14:30',
+          totalPrice: 97,
+          totalDurationMinutes: 70,
+          status: 'completed',
+          source: 'walk-in',
+          checkinCode: 'MRB-5190',
+          checkedInByClient: true,
+          faceShape: 'oval',
+          returnReminderSent: false,
+          birthdayWishSent: false,
+          createdAt: new Date(Date.now() - 28 * 86400000).toISOString()
+        },
+        {
+          id: 'apt-demo-3',
+          clientName: 'Caio Henrique',
+          clientPhone: '(19) 98711-2233',
+          birthDate: `1992-${curM}-25`,
+          serviceIds: ['srv-mid-fade'],
+          barberId: 'barb-1',
+          date: addDaysISO(today, -5),
+          time: '11:00',
+          totalPrice: 58,
+          totalDurationMinutes: 40,
+          status: 'completed',
+          source: 'app',
+          checkinCode: 'MRB-3029',
+          checkedInByClient: true,
+          faceShape: 'quadrado',
+          returnReminderSent: false,
+          birthdayWishSent: false,
+          createdAt: new Date(Date.now() - 5 * 86400000).toISOString()
+        },
+        {
+          id: 'apt-demo-4',
+          clientName: 'Felipe Augusto',
+          clientPhone: '(19) 98844-9900',
+          birthDate: '1998-03-14',
+          serviceIds: ['srv-social'],
+          barberId: 'barb-3',
+          date: today,
+          time: '16:00',
+          totalPrice: 50,
+          totalDurationMinutes: 35,
+          status: 'confirmed',
+          source: 'app',
+          checkinCode: 'MRB-7741',
+          checkedInByClient: false,
+          faceShape: 'oblongo',
+          returnReminderSent: false,
+          birthdayWishSent: false,
+          createdAt: new Date().toISOString()
+        }
+      ];
+    }
+
+    function formatCurrency(value) {
+      return Number(value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
+
+    function formatDateBR(isoDate) {
+      if (!isoDate) return '';
+      const parts = isoDate.split('-');
+      return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : isoDate;
+    }
+
+    function formatMonthDayBR(isoDate) {
+      if (!isoDate) return '';
+      const parts = isoDate.split('-');
+      return parts.length === 3 ? `${parts[2]}/${parts[1]}` : isoDate;
+    }
+
+    function getWeekdayLabel(isoDate) {
+      const [y, m, d] = isoDate.split('-').map(Number);
+      const dt = new Date(y, m - 1, d);
+      return ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'][dt.getDay()];
+    }
+
+    function getNextDays(count = 14) {
+      const days = [];
+      const today = getTodayISO();
+      for (let i = 0; i < count; i++) {
+        const iso = addDaysISO(today, i);
+        const [y, m, d] = iso.split('-').map(Number);
+        const dt = new Date(y, m - 1, d);
+        days.push({
+          iso,
+          dayNumber: String(d).padStart(2, '0'),
+          weekday: getWeekdayLabel(iso),
+          monthShort: dt.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '')
+        });
+      }
+      return days;
+    }
+
+    function daysBetweenISO(fromISO, toISO) {
+      if (!fromISO || !toISO) return 0;
+      const [y1, m1, d1] = fromISO.split('-').map(Number);
+      const [y2, m2, d2] = toISO.split('-').map(Number);
+      return Math.round((Date.UTC(y2, m2 - 1, d2) - Date.UTC(y1, m1 - 1, d1)) / 86400000);
+    }
+
+    function timeToMinutes(hhmm) {
+      const [h, m] = (hhmm || '09:00').split(':').map(Number);
+      return h * 60 + m;
+    }
+
+    function minutesToTime(mins) {
+      return `${String(Math.floor(mins / 60)).padStart(2, '0')}:${String(mins % 60).padStart(2, '0')}`;
+    }
+
+    function generateTimeSlots(barber, dateISO, appointments, durationMinutes) {
+      if (!barber || !barber.active || !dateISO) return [];
+      const [y, m, d] = dateISO.split('-').map(Number);
+      const weekday = new Date(y, m - 1, d).getDay();
+      if (!Array.isArray(barber.workingDays) || !barber.workingDays.includes(weekday)) return [];
+
+      const startMin = timeToMinutes(barber.workStart || '09:00');
+      const endMin = timeToMinutes(barber.workEnd || '20:00');
+      const step = Number(barber.slotIntervalMinutes || 30);
+      const needed = Math.max(15, Number(durationMinutes || 30));
+
+      const dayBusy = appointments.filter(
+        (a) => a.barberId === barber.id && a.date === dateISO && a.status !== 'cancelled'
+      );
+
+      const now = new Date();
+      const todayISO = getTodayISO();
+      const nowMinutes = now.getHours() * 60 + now.getMinutes();
+
+      const slots = [];
+      for (let cur = startMin; cur + needed <= endMin; cur += step) {
+        if (dateISO === todayISO && cur <= nowMinutes + 15) continue;
+        const candidateStart = cur;
+        const candidateEnd = cur + needed;
+        const overlaps = dayBusy.some((apt) => {
+          const aptStart = timeToMinutes(apt.time);
+          const aptEnd = aptStart + Number(apt.totalDurationMinutes || 30);
+          return candidateStart < aptEnd && candidateEnd > aptStart;
+        });
+        if (!overlaps) slots.push(minutesToTime(cur));
+      }
+      return slots;
+    }
+
+    function findNextSuitableDate(barber, startISO, appointments, durationMinutes) {
+      for (let i = 0; i < 21; i++) {
+        const candidateDate = addDaysISO(startISO, i);
+        const freeSlots = generateTimeSlots(barber, candidateDate, appointments, durationMinutes);
+        if (freeSlots.length > 0) {
+          return { date: candidateDate, firstSlot: freeSlots[0] };
+        }
+      }
+      return { date: addDaysISO(startISO, 1), firstSlot: '10:00' };
+    }
+
+    function formatPhoneMask(raw) {
+      const digits = String(raw || '').replace(/\D/g, '').slice(0, 11);
+      if (digits.length <= 2) return digits ? `(${digits}` : '';
+      if (digits.length <= 7) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+      return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+    }
+
+    function buildWhatsAppUrl(phoneDigits, message) {
+      const digits = String(phoneDigits || '').replace(/\D/g, '');
+      const clean = digits ? (digits.startsWith('55') ? digits : `55${digits}`) : '';
+      const encoded = encodeURIComponent(message);
+      return clean ? `https://wa.me/${clean}?text=${encoded}` : `https://wa.me/?text=${encoded}`;
+    }
+
+    function generateCheckinCode() {
+      return `MRB-${Math.floor(1000 + Math.random() * 9000)}`;
+    }
+
+    // =========================================================================
+    // APLICAÇÃO PRINCIPAL
+    // =========================================================================
+    function App() {
+      const [shopInfo, setShopInfo] = useState(() => loadFromStorage(STORAGE_KEYS.SHOP, INITIAL_SHOP_INFO));
+      const [faceShapes, setFaceShapes] = useState(() => loadFromStorage(STORAGE_KEYS.FACE_SHAPES, INITIAL_FACE_SHAPES));
+      const [barbers, setBarbers] = useState(() => loadFromStorage(STORAGE_KEYS.BARBERS, INITIAL_BARBERS));
+      const [services, setServices] = useState(() => loadFromStorage(STORAGE_KEYS.SERVICES, INITIAL_SERVICES));
+      const [appointments, setAppointments] = useState(() => loadFromStorage(STORAGE_KEYS.APPOINTMENTS, buildInitialAppointments()));
+      const [courses, setCourses] = useState(() => loadFromStorage(STORAGE_KEYS.COURSES, INITIAL_COURSES));
+      const [reviews, setReviews] = useState(() => loadFromStorage(STORAGE_KEYS.REVIEWS, INITIAL_REVIEWS));
+
+      useEffect(() => saveToStorage(STORAGE_KEYS.SHOP, shopInfo), [shopInfo]);
+      useEffect(() => saveToStorage(STORAGE_KEYS.FACE_SHAPES, faceShapes), [faceShapes]);
+      useEffect(() => saveToStorage(STORAGE_KEYS.BARBERS, barbers), [barbers]);
+      useEffect(() => saveToStorage(STORAGE_KEYS.SERVICES, services), [services]);
+      useEffect(() => saveToStorage(STORAGE_KEYS.APPOINTMENTS, appointments), [appointments]);
+      useEffect(() => saveToStorage(STORAGE_KEYS.COURSES, courses), [courses]);
+      useEffect(() => saveToStorage(STORAGE_KEYS.REVIEWS, reviews), [reviews]);
+
+      const [view, setView] = useState('home');
+      const [toast, setToast] = useState(null);
+      const [deferredInstallPrompt, setDeferredInstallPrompt] = useState(null);
+
+      useEffect(() => {
+        const handler = (e) => {
+          e.preventDefault();
+          setDeferredInstallPrompt(e);
+        };
+        window.addEventListener('beforeinstallprompt', handler);
+        return () => window.removeEventListener('beforeinstallprompt', handler);
+      }, []);
+
+      function notify(message, type = 'success') {
+        setToast({ id: Date.now(), message, type });
+      }
+
+      useEffect(() => {
+        if (!toast) return;
+        const timer = setTimeout(() => setToast(null), 4200);
+        return () => clearTimeout(timer);
+      }, [toast]);
+
+      async function handleInstallAppClick() {
+        if (deferredInstallPrompt) {
+          deferredInstallPrompt.prompt();
+          await deferredInstallPrompt.userChoice;
+          setDeferredInstallPrompt(null);
+          return;
+        }
+        const isIOS = /iphone|ipad|ipod/i.test(window.navigator.userAgent);
+        notify(
+          isIOS
+            ? 'No iPhone (Safari): toque em Compartilhar e depois em "Adicionar à Tela de Início".'
+            : 'No Android (Chrome): toque nos 3 pontinhos (⋮) e escolha "Adicionar à tela inicial".',
+          'info'
+        );
+      }
+
+      // Visagismo & Catálogo
+      const [selectedFaceId, setSelectedFaceId] = useState('oval');
+      const [catalogCategory, setCatalogCategory] = useState('Todos');
+      const [catalogSearch, setCatalogSearch] = useState('');
+
+      const activeFaceShape = useMemo(
+        () => faceShapes.find((f) => f.id === selectedFaceId) || faceShapes[0],
+        [faceShapes, selectedFaceId]
+      );
+
+      const recommendedServicesForFace = useMemo(() => {
+        if (!activeFaceShape) return [];
+        return (activeFaceShape.recommendedServiceIds || [])
+          .map((id) => services.find((s) => s.id === id))
+          .filter(Boolean);
+      }, [activeFaceShape, services]);
+
+      const filteredCatalogServices = useMemo(() => {
+        return services.filter((srv) => {
+          const matchesCat = catalogCategory === 'Todos' || srv.category === catalogCategory;
+          const q = catalogSearch.trim().toLowerCase();
+          return (
+            matchesCat &&
+            (!q ||
+              srv.name.toLowerCase().includes(q) ||
+              srv.category.toLowerCase().includes(q) ||
+              (srv.description || '').toLowerCase().includes(q))
+          );
+        });
+      }, [services, catalogCategory, catalogSearch]);
+
+      // Agendamento em 4 etapas + Pré-Cadastro completo
+      const activeBarbers = useMemo(() => barbers.filter((b) => b.active), [barbers]);
+      const [step, setStep] = useState(1);
+      const [selectedBarberId, setSelectedBarberId] = useState(() => barbers.find((b) => b.active)?.id || '');
+      const [selectedServiceIds, setSelectedServiceIds] = useState(() => (services[0] ? [services[0].id] : []));
+      const [selectedDate, setSelectedDate] = useState(() => getNextDays(14)[0]?.iso || getTodayISO());
+      const [selectedTime, setSelectedTime] = useState('');
+      const [clientName, setClientName] = useState('');
+      const [clientPhone, setClientPhone] = useState('');
+      const [clientBirthDate, setClientBirthDate] = useState('');
+      const [lastBookingReceipt, setLastBookingReceipt] = useState(null);
+
+      const selectedBarber = useMemo(
+        () => activeBarbers.find((b) => b.id === selectedBarberId) || activeBarbers[0] || null,
+        [activeBarbers, selectedBarberId]
+      );
+
+      const selectedServicesObjects = useMemo(
+        () => services.filter((s) => selectedServiceIds.includes(s.id)),
+        [services, selectedServiceIds]
+      );
+
+      const totalBookingPrice = useMemo(
+        () => selectedServicesObjects.reduce((acc, s) => acc + Number(s.price || 0), 0),
+        [selectedServicesObjects]
+      );
+
+      const totalBookingDuration = useMemo(
+        () => Math.max(15, selectedServicesObjects.reduce((acc, s) => acc + Number(s.durationMinutes || 30), 0)),
+        [selectedServicesObjects]
+      );
+
+      const availableTimeSlots = useMemo(() => {
+        if (!selectedBarber || selectedServicesObjects.length === 0) return [];
+        return generateTimeSlots(selectedBarber, selectedDate, appointments, totalBookingDuration);
+      }, [selectedBarber, selectedServicesObjects.length, selectedDate, appointments, totalBookingDuration]);
+
+      function toggleServiceSelection(serviceId) {
+        setSelectedServiceIds((prev) => {
+          if (prev.includes(serviceId)) {
+            if (prev.length === 1) {
+              notify('Selecione ao menos 1 serviço.', 'info');
+              return prev;
+            }
+            return prev.filter((id) => id !== serviceId);
+          }
+          return [...prev, serviceId];
+        });
+        setSelectedTime('');
+      }
+
+      function startBookingWithService(serviceId, faceId = null) {
+        setSelectedServiceIds([serviceId]);
+        if (faceId) setSelectedFaceId(faceId);
+        setLastBookingReceipt(null);
+        setStep(2);
+        setView('book');
+      }
+
+      function handleConfirmBooking(e) {
+        e.preventDefault();
+        if (!selectedBarber || selectedServicesObjects.length === 0 || !selectedDate || !selectedTime) {
+          notify('Complete as etapas anteriores antes de confirmar.', 'error');
+          return;
+        }
+        if (!clientName.trim() || !clientBirthDate || clientPhone.replace(/\D/g, '').length < 10) {
+          notify('Preencha nome completo, data de nascimento e WhatsApp válido.', 'error');
+          return;
+        }
+
+        const code = generateCheckinCode();
+        const payload = {
+          id: `apt-${Date.now()}`,
+          clientName: clientName.trim(),
+          clientPhone: formatPhoneMask(clientPhone),
+          birthDate: clientBirthDate,
+          serviceIds: selectedServicesObjects.map((s) => s.id),
+          barberId: selectedBarber.id,
+          date: selectedDate,
+          time: selectedTime,
+          totalPrice: totalBookingPrice,
+          totalDurationMinutes: totalBookingDuration,
+          status: 'confirmed',
+          source: 'app',
+          checkinCode: code,
+          checkedInByClient: true,
+          faceShape: selectedFaceId || 'oval',
+          returnReminderSent: false,
+          birthdayWishSent: false,
+          createdAt: new Date().toISOString()
+        };
+
+        setAppointments((prev) => [payload, ...prev]);
+        setLastBookingReceipt({
+          ...payload,
+          barberName: selectedBarber.name,
+          serviceNames: selectedServicesObjects.map((s) => s.name).join(' + ')
+        });
+        setMySearchPhone(payload.clientPhone);
+        setClientName('');
+        setClientPhone('');
+        setClientBirthDate('');
+        setSelectedTime('');
+        setStep(1);
+        notify('Pré-cadastro e agendamento confirmados na Mr. Barba Valinhos!');
+      }
+
+      // Check-in na cadeira
+      const [checkinCodeInput, setCheckinCodeInput] = useState('');
+      const [checkinClientName, setCheckinClientName] = useState('');
+      const [checkinClientPhone, setCheckinClientPhone] = useState('');
+      const [checkinBirthDate, setCheckinBirthDate] = useState('');
+      const [checkinDoneInfo, setCheckinDoneInfo] = useState(null);
+
+      function handleClientCheckinSubmit(e) {
+        e.preventDefault();
+        const codeClean = checkinCodeInput.trim().toUpperCase();
+        const found = appointments.find((a) => String(a.checkinCode || '').toUpperCase() === codeClean);
+        if (!found) {
+          notify('Código de encaixe não encontrado. Confirme com o barbeiro (ex: MRB-8412).', 'error');
+          return;
+        }
+        const formattedPhone = formatPhoneMask(checkinClientPhone);
+        const updatedBirth = checkinBirthDate || found.birthDate || '';
+        setAppointments((prev) =>
+          prev.map((a) =>
+            a.id === found.id
+              ? {
+                  ...a,
+                  clientName: checkinClientName.trim(),
+                  clientPhone: formattedPhone,
+                  birthDate: updatedBirth,
+                  checkedInByClient: true
+                }
+              : a
+          )
+        );
+        setCheckinDoneInfo({
+          clientName: checkinClientName.trim(),
+          code: codeClean,
+          suggestedReturnDate: addDaysISO(found.date || getTodayISO(), 30)
+        });
+        setMySearchPhone(formattedPhone);
+        setCheckinCodeInput('');
+        setCheckinClientName('');
+        setCheckinClientPhone('');
+        setCheckinBirthDate('');
+        notify('Check-in concluído!');
+      }
+
+      // Meus Horários
+      const [mySearchPhone, setMySearchPhone] = useState('');
+      const myAppointments = useMemo(() => {
+        const digits = mySearchPhone.replace(/\D/g, '');
+        if (digits.length < 4) return [];
+        return appointments
+          .filter((a) => String(a.clientPhone || '').replace(/\D/g, '').includes(digits))
+          .sort((a, b) => `${b.date} ${b.time}`.localeCompare(`${a.date} ${a.time}`));
+      }, [appointments, mySearchPhone]);
+
+      // Painel Administrativo (PIN 1234)
+      const [adminUnlocked, setAdminUnlocked] = useState(false);
+      const [pinInput, setPinInput] = useState('');
+      const [adminTab, setAdminTab] = useState('agenda');
+      const [adminDate, setAdminDate] = useState(getTodayISO());
+      const [walkInForm, setWalkInForm] = useState({
+        clientName: '',
+        clientPhone: '',
+        birthDate: '',
+        serviceId: '',
+        barberId: '',
+        date: getTodayISO(),
+        time: '10:00'
+      });
+      const [lastWalkInCheckin, setLastWalkInCheckin] = useState(null);
+
+      function handleUnlockAdmin(e) {
+        e.preventDefault();
+        if (pinInput.trim() === DEMO_PIN) {
+          setAdminUnlocked(true);
+          setPinInput('');
+          notify('Painel da Mr. Barba Valinhos desbloqueado!');
+        } else {
+          notify('PIN incorreto. Use 1234 para acessar a demo.', 'error');
+        }
+      }
+
+      function handleResetDemo() {
+        Object.values(STORAGE_KEYS).forEach((k) => window.localStorage.removeItem(k));
+        setShopInfo(INITIAL_SHOP_INFO);
+        setFaceShapes(INITIAL_FACE_SHAPES);
+        setBarbers(INITIAL_BARBERS);
+        setServices(INITIAL_SERVICES);
+        setAppointments(buildInitialAppointments());
+        setCourses(INITIAL_COURSES);
+        setReviews(INITIAL_REVIEWS);
+        setLastBookingReceipt(null);
+        setLastWalkInCheckin(null);
+        notify('Demo restaurada ao estado inicial!');
+      }
+
+      function handleCreateWalkIn(e) {
+        e.preventDefault();
+        const srv = services.find((s) => s.id === walkInForm.serviceId) || services[0];
+        const brb = barbers.find((b) => b.id === walkInForm.barberId) || activeBarbers[0];
+        const code = generateCheckinCode();
+        const hasName = Boolean(walkInForm.clientName.trim());
+        const hasPhone = walkInForm.clientPhone.replace(/\D/g, '').length >= 10;
+
+        const payload = {
+          id: `apt-walk-${Date.now()}`,
+          clientName: hasName ? walkInForm.clientName.trim() : 'Cliente Encaixe (Aguardando Check-in)',
+          clientPhone: hasPhone ? formatPhoneMask(walkInForm.clientPhone) : 'Aguardando Check-in',
+          birthDate: walkInForm.birthDate || '',
+          serviceIds: [srv.id],
+          barberId: brb.id,
+          date: walkInForm.date || getTodayISO(),
+          time: walkInForm.time || '10:00',
+          totalPrice: Number(srv.price || 0),
+          totalDurationMinutes: Number(srv.durationMinutes || 30),
+          status: 'confirmed',
+          source: 'walk-in',
+          checkinCode: code,
+          checkedInByClient: hasName && hasPhone,
+          returnReminderSent: false,
+          birthdayWishSent: false,
+          createdAt: new Date().toISOString()
+        };
+
+        setAppointments((prev) => [payload, ...prev]);
+        setLastWalkInCheckin({ code, serviceName: srv.name, barberName: brb.name, birthDate: payload.birthDate });
+        setWalkInForm((prev) => ({ ...prev, clientName: '', clientPhone: '', birthDate: '' }));
+        notify(`Encaixe lançado! Código: ${code}`);
+      }
+
+      const financialAnalytics = useMemo(() => {
+        const today = getTodayISO();
+        const [ty, tm, td] = today.split('-').map(Number);
+        const nowObj = new Date(ty, tm - 1, td);
+        const dayOfWeek = nowObj.getDay();
+        const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+        const weekStartISO = addDaysISO(today, diffToMonday);
+        const weekEndISO = addDaysISO(weekStartISO, 6);
+        const monthPrefix = `${ty}-${String(tm).padStart(2, '0')}`;
+
+        const valid = appointments.filter((a) => a.status !== 'cancelled');
+        const weekApts = valid.filter((a) => a.date >= weekStartISO && a.date <= weekEndISO);
+        const monthApts = valid.filter((a) => String(a.date || '').startsWith(monthPrefix));
+
+        const weekRevenue = weekApts.reduce((s, a) => s + Number(a.totalPrice || 0), 0);
+        const monthRevenue = monthApts.reduce((s, a) => s + Number(a.totalPrice || 0), 0);
+        const avgTicket = valid.length ? valid.reduce((s, a) => s + Number(a.totalPrice || 0), 0) / valid.length : 0;
+
+        return { weekStartISO, weekEndISO, weekRevenue, weekCount: weekApts.length, monthRevenue, monthCount: monthApts.length, avgTicket };
+      }, [appointments]);
+
+      const retentionClients = useMemo(() => {
+        const today = getTodayISO();
+        const seen = new Set();
+        const out = [];
+        for (const apt of [...appointments].sort((a, b) => b.date.localeCompare(a.date))) {
+          const digits = String(apt.clientPhone || '').replace(/\D/g, '');
+          const key = digits.length >= 8 ? digits : apt.id;
+          if (seen.has(key)) continue;
+          seen.add(key);
+          const elapsedDays = daysBetweenISO(apt.date, today);
+          const targetDate = addDaysISO(apt.date, 30);
+          const brb = barbers.find((b) => b.id === apt.barberId) || activeBarbers[0];
+          const suitable = brb ? findNextSuitableDate(brb, targetDate, appointments, 40) : { date: targetDate, firstSlot: '10:00' };
+          out.push({
+            appointmentId: apt.id,
+            clientName: apt.clientName,
+            clientPhone: apt.clientPhone,
+            elapsedDays,
+            suggestedDate: suitable.date,
+            suggestedTime: suitable.firstSlot,
+            barberName: brb?.name || 'Barbeiro',
+            reminderSent: Boolean(apt.returnReminderSent)
+          });
+        }
+        return out.sort((a, b) => b.elapsedDays - a.elapsedDays);
+      }, [appointments, barbers, activeBarbers]);
+
+      const birthdayClients = useMemo(() => {
+        const [, curMonth, curDay] = getTodayISO().split('-');
+        const seen = new Set();
+        const out = [];
+        for (const apt of [...appointments].sort((a, b) => b.date.localeCompare(a.date))) {
+          if (!apt.birthDate) continue;
+          const parts = apt.birthDate.split('-');
+          if (parts.length !== 3) continue;
+          const digits = String(apt.clientPhone || '').replace(/\D/g, '');
+          const key = digits.length >= 8 ? digits : apt.id;
+          if (seen.has(key)) continue;
+          seen.add(key);
+          out.push({
+            appointmentId: apt.id,
+            clientName: apt.clientName,
+            clientPhone: apt.clientPhone,
+            birthDate: apt.birthDate,
+            birthMonthDay: `${parts[2]}/${parts[1]}`,
+            isTodayBirthday: parts[1] === curMonth && parts[2] === curDay,
+            birthdayWishSent: Boolean(apt.birthdayWishSent)
+          });
+        }
+        return out.sort((a, b) => (a.isTodayBirthday === b.isTodayBirthday ? 0 : a.isTodayBirthday ? -1 : 1));
+      }, [appointments]);
+
+      function handleSendBirthdayWish(bClient) {
+        setAppointments((prev) =>
+          prev.map((a) => (a.id === bClient.appointmentId ? { ...a, birthdayWishSent: true } : a))
+        );
+        const msg = `🎉 Parabéns, *${bClient.clientName}*! Feliz aniversário!\nA equipe da *${shopInfo.name}* em *${shopInfo.city}/${shopInfo.state}* te deseja muita saúde e conquistas.\n_${shopInfo.slogan}_`;
+        window.open(buildWhatsAppUrl(bClient.clientPhone, msg), '_blank', 'noopener,noreferrer');
+        notify(`Parabéns disparado para ${bClient.clientName}!`);
+      }
+
+      const mapsEmbedSrc = `https://www.google.com/maps?q=${encodeURIComponent(shopInfo.address)}&output=embed`;
+
+      return (
+        <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col pb-20 md:pb-8">
+          {toast && (
+            <div className="fixed top-4 right-4 z-50 max-w-sm rounded-xl border border-amber-500/60 bg-slate-900/95 px-4 py-3 shadow-2xl text-sm font-medium text-amber-100">
+              {toast.message}
+            </div>
+          )}
+
+          {/* Header */}
+          <header className="sticky top-0 z-40 bg-slate-950/95 backdrop-blur border-b border-slate-800">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+              <button type="button" onClick={() => setView('home')} className="flex items-center gap-3 text-left">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black flex items-center justify-center text-base">
+                  {shopInfo.badge}
+                </div>
+                <div>
+                  <span className="font-extrabold text-white text-base sm:text-lg block leading-tight">
+                    {shopInfo.name}
+                  </span>
+                  <span className="text-[11px] sm:text-xs text-amber-300 font-medium block">
+                    {shopInfo.slogan}
+                  </span>
+                </div>
+              </button>
+
+              <nav className="hidden md:flex items-center gap-1 bg-slate-900 p-1 rounded-xl border border-slate-800">
+                {[
+                  { id: 'home', label: 'Início' },
+                  { id: 'visagism', label: 'Visagismo & Cortes' },
+                  { id: 'book', label: 'Agendar' },
+                  { id: 'checkin', label: 'Check-in Cadeira' },
+                  { id: 'my', label: 'Meus Horários' }
+                ].map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => setView(item.id)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${
+                      view === item.id ? 'bg-amber-500 text-slate-950' : 'text-slate-300 hover:bg-slate-800'
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </nav>
+
+              <button
+                type="button"
+                onClick={() => setView('admin')}
+                className={`px-3.5 py-2 rounded-xl text-xs font-extrabold border transition ${
+                  view === 'admin'
+                    ? 'bg-amber-500 text-slate-950 border-amber-400'
+                    : 'bg-slate-900 text-amber-300 border-amber-500/40'
+                }`}
+              >
+                Painel
+              </button>
+            </div>
+          </header>
+
+          {/* Nav Mobile */}
+          <nav className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-slate-950/95 backdrop-blur border-t border-slate-800 grid grid-cols-5 px-1 py-2">
+            {[
+              { id: 'home', label: 'Início' },
+              { id: 'visagism', label: 'Visagismo' },
+              { id: 'book', label: 'Agendar' },
+              { id: 'checkin', label: 'Check-in' },
+              { id: 'my', label: 'Horários' }
+            ].map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => setView(item.id)}
+                className={`py-1 rounded-lg text-[11px] font-extrabold ${
+                  view === item.id ? 'text-amber-400 bg-amber-500/10' : 'text-slate-400'
+                }`}
+              >
+                {item.label}
+              </button>
+            ))}
+          </nav>
+
+          {/* Main Content */}
+          <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 space-y-8">
+            {view === 'home' && (
+              <div className="space-y-8">
+                {/* Hero */}
+                <section className="rounded-3xl overflow-hidden border border-slate-800 bg-slate-900 grid grid-cols-1 lg:grid-cols-12">
+                  <div className="lg:col-span-7 p-6 sm:p-10 flex flex-col justify-between gap-6">
+                    <div className="space-y-3">
+                      <span className="inline-block px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-bold">
+                        {shopInfo.city} • {shopInfo.state} • Visagismo, Cortes & Academia
+                      </span>
+                      <h1 className="text-3xl sm:text-5xl font-black text-white">{shopInfo.name}</h1>
+                      <p className="text-lg sm:text-xl font-bold text-amber-400">“{shopInfo.slogan}”</p>
+                      <p className="text-sm text-slate-300 leading-relaxed">
+                        Agende em 4 passos com pré-cadastro, descubra o corte ideal para o formato da
+                        sua cabeça no Consultor de Visagismo e receba alerta inteligente quando seu
+                        corte completar 30 dias.
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap gap-3">
+                      <button
+                        type="button"
+                        onClick={() => { setStep(1); setView('book'); }}
+                        className="px-5 py-3.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-sm"
+                      >
+                        Quero Agendar Agora
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setView('visagism')}
+                        className="px-5 py-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-sm border border-slate-700"
+                      >
+                        Consultor de Visagismo
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setView('checkin')}
+                        className="px-4 py-3.5 rounded-xl bg-slate-950 text-amber-300 font-bold text-sm border border-amber-500/30"
+                      >
+                        Check-in na Cadeira
+                      </button>
+                    </div>
+                  </div>
+                  <div className="lg:col-span-5 min-h-[260px]">
+                    <img src={shopInfo.heroImage} alt={shopInfo.name} className="w-full h-full object-cover" />
+                  </div>
+                </section>
+
+                {/* Horários, Contato e Mapa */}
+                <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  <div className="rounded-2xl bg-slate-900 border border-slate-800 p-5 space-y-3">
+                    <h2 className="text-amber-400 font-extrabold text-sm uppercase">Horário de Funcionamento</h2>
+                    {shopInfo.hoursSummary.map((row, idx) => (
+                      <div key={idx} className="flex justify-between text-sm border-b border-slate-800 pb-2 last:border-b-0">
+                        <span className="text-slate-300">{row.days}</span>
+                        <span className="font-bold text-white">{row.hours}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="rounded-2xl bg-slate-900 border border-slate-800 p-5 flex flex-col justify-between gap-4">
+                    <div>
+                      <h2 className="text-amber-400 font-extrabold text-sm uppercase">Contato & WhatsApp</h2>
+                      <p className="text-xl font-black text-white mt-2">{shopInfo.phone}</p>
+                      <p className="text-xs text-slate-400 mt-1">Atendimento em {shopInfo.city}/{shopInfo.state}.</p>
+                    </div>
+                    <a
+                      href={buildWhatsAppUrl(shopInfo.whatsappNumber, `Olá ${shopInfo.name}! Gostaria de agendar um horário.`)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full text-center py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs"
+                    >
+                      Chamar no WhatsApp
+                    </a>
+                  </div>
+
+                  <div className="rounded-2xl bg-slate-900 border border-slate-800 p-5 space-y-2.5">
+                    <h2 className="text-amber-400 font-extrabold text-sm uppercase">Localização</h2>
+                    <p className="text-xs text-slate-300">{shopInfo.address}</p>
+                    <div className="rounded-xl overflow-hidden border border-slate-700 h-36">
+                      <iframe title="Mapa Mr. Barba Valinhos" src={mapsEmbedSrc} className="w-full h-full border-0" loading="lazy" />
+                    </div>
+                  </div>
+                </section>
+
+                {/* Equipe */}
+                <section className="space-y-4">
+                  <h2 className="text-2xl font-black text-white">Equipe & Agendas Individuais</h2>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                    {activeBarbers.map((brb) => (
+                      <div key={brb.id} className="rounded-2xl bg-slate-900 border border-slate-800 overflow-hidden">
+                        <img src={brb.avatar} alt={brb.name} className="w-full h-48 object-cover" />
+                        <div className="p-5 space-y-2">
+                          <span className="text-xs font-bold text-amber-400">{brb.role}</span>
+                          <h3 className="text-lg font-extrabold text-white">{brb.name}</h3>
+                          <p className="text-xs text-slate-400">{brb.specialty}</p>
+                          <button
+                            type="button"
+                            onClick={() => { setSelectedBarberId(brb.id); setStep(2); setView('book'); }}
+                            className="w-full mt-2 py-2.5 rounded-xl bg-slate-800 hover:bg-amber-500 text-white hover:text-slate-950 font-extrabold text-xs transition"
+                          >
+                            Agendar com {brb.name.split(' ')[0]}
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              </div>
+            )}
+
+            {/* VISAGISMO & CATÁLOGO */}
+            {view === 'visagism' && (
+              <div className="space-y-8">
+                <div className="rounded-3xl bg-slate-900 border border-slate-800 p-6 space-y-5">
+                  <h1 className="text-2xl font-black text-white">Consultor de Visagismo — Formato de Cabeça/Rosto</h1>
+                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                    {faceShapes.map((shape) => (
+                      <button
+                        key={shape.id}
+                        type="button"
+                        onClick={() => setSelectedFaceId(shape.id)}
+                        className={`rounded-2xl overflow-hidden border text-left ${
+                          shape.id === selectedFaceId ? 'border-amber-400 bg-slate-800' : 'border-slate-800 bg-slate-950'
+                        }`}
+                      >
+                        <img src={shape.photo} alt={shape.name} className="w-full h-24 object-cover" />
+                        <div className="p-2.5">
+                          <span className="text-sm font-extrabold text-white block">{shape.name}</span>
+                          <span className="text-[11px] text-slate-400 line-clamp-1">{shape.tagline}</span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+
+                  {activeFaceShape && (
+                    <div className="rounded-2xl bg-slate-950 border border-slate-800 p-5 space-y-4">
+                      <p className="text-sm text-slate-300">{activeFaceShape.description}</p>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        {recommendedServicesForFace.map((srv) => (
+                          <div key={srv.id} className="rounded-xl bg-slate-900 border border-slate-800 p-3 space-y-2">
+                            <img src={srv.photo} alt={srv.name} className="w-full h-28 object-cover rounded-lg" />
+                            <h3 className="text-xs font-extrabold text-white">{srv.name}</h3>
+                            <p className="text-[11px] text-slate-400">{srv.visagismTip}</p>
+                            <div className="flex justify-between items-center pt-1">
+                              <span className="text-xs font-black text-emerald-400">{formatCurrency(srv.price)}</span>
+                              <button
+                                type="button"
+                                onClick={() => startBookingWithService(srv.id, activeFaceShape.id)}
+                                className="px-3 py-1.5 rounded-lg bg-amber-500 text-slate-950 text-[11px] font-extrabold"
+                              >
+                                Agendar
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="rounded-3xl bg-slate-900 border border-slate-800 p-6 space-y-4">
+                  <div className="flex flex-wrap justify-between gap-3">
+                    <h2 className="text-xl font-black text-white">Catálogo Completo ({services.length} Serviços)</h2>
+                    <input
+                      type="text"
+                      value={catalogSearch}
+                      onChange={(e) => setCatalogSearch(e.target.value)}
+                      placeholder="Buscar corte, barba..."
+                      className="bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white"
+                    />
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {['Todos', 'Cortes', 'Barbas', 'Coloração & Extras', 'Combos'].map((cat) => (
+                      <button
+                        key={cat}
+                        type="button"
+                        onClick={() => setCatalogCategory(cat)}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold ${
+                          catalogCategory === cat ? 'bg-amber-500 text-slate-950' : 'bg-slate-950 text-slate-300 border border-slate-800'
+                        }`}
+                      >
+                        {cat}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {filteredCatalogServices.map((srv) => (
+                      <div key={srv.id} className="rounded-2xl bg-slate-950 border border-slate-800 overflow-hidden flex flex-col justify-between">
+                        <div>
+                          <img src={srv.photo} alt={srv.name} className="w-full h-36 object-cover" />
+                          <div className="p-4 space-y-1.5">
+                            <span className="text-[10px] font-bold uppercase text-amber-400">{srv.category} • {srv.durationMinutes} min</span>
+                            <h3 className="text-sm font-extrabold text-white">{srv.name}</h3>
+                            <p className="text-xs text-slate-400">{srv.description}</p>
+                          </div>
+                        </div>
+                        <div className="px-4 pb-4 flex justify-between items-center">
+                          <span className="text-sm font-black text-emerald-400">{formatCurrency(srv.price)}</span>
+                          <button
+                            type="button"
+                            onClick={() => startBookingWithService(srv.id)}
+                            className="px-3.5 py-2 rounded-xl bg-amber-500 text-slate-950 text-xs font-extrabold"
+                          >
+                            Agendar
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* AGENDAMENTO EM 4 ETAPAS + PRÉ-CADASTRO */}
+            {view === 'book' && (
+              <div className="rounded-3xl bg-slate-900 border border-slate-800 p-6 space-y-6">
+                <div className="flex flex-wrap justify-between items-center gap-3">
+                  <h1 className="text-2xl font-black text-white">Agendamento em 4 Etapas</h1>
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      { n: 1, label: '1. Profissional' },
+                      { n: 2, label: '2. Serviços' },
+                      { n: 3, label: '3. Data & Hora' },
+                      { n: 4, label: '4. Pré-Cadastro' }
+                    ].map((s) => (
+                      <button
+                        key={s.n}
+                        type="button"
+                        onClick={() => setStep(s.n)}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-extrabold ${
+                          step === s.n ? 'bg-amber-500 text-slate-950' : 'bg-slate-950 text-slate-400 border border-slate-800'
+                        }`}
+                      >
+                        {s.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {lastBookingReceipt && (
+                  <div className="rounded-2xl bg-emerald-950/50 border border-emerald-500/40 p-4 space-y-2">
+                    <p className="text-sm font-black text-white">
+                      ✓ Pré-Cadastro & Agendamento Confirmados! Código: {lastBookingReceipt.checkinCode}
+                    </p>
+                    <p className="text-xs text-emerald-200">
+                      {lastBookingReceipt.clientName} • {lastBookingReceipt.serviceNames} com {lastBookingReceipt.barberName} em {formatDateBR(lastBookingReceipt.date)} às {lastBookingReceipt.time}.
+                    </p>
+                  </div>
+                )}
+
+                {step === 1 && (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      {activeBarbers.map((brb) => (
+                        <button
+                          key={brb.id}
+                          type="button"
+                          onClick={() => { setSelectedBarberId(brb.id); setSelectedTime(''); }}
+                          className={`rounded-2xl border p-4 text-left ${
+                            brb.id === selectedBarber?.id ? 'border-amber-400 bg-slate-800' : 'border-slate-800 bg-slate-950'
+                          }`}
+                        >
+                          <img src={brb.avatar} alt={brb.name} className="w-16 h-16 rounded-2xl object-cover mb-2" />
+                          <h3 className="text-base font-extrabold text-white">{brb.name}</h3>
+                          <p className="text-xs text-slate-400">{brb.specialty}</p>
+                        </button>
+                      ))}
+                    </div>
+                    <button type="button" onClick={() => setStep(2)} className="px-6 py-3 rounded-xl bg-amber-500 text-slate-950 font-extrabold text-sm">
+                      Avançar para Serviços →
+                    </button>
+                  </div>
+                )}
+
+                {step === 2 && (
+                  <div className="space-y-4">
+                    <p className="text-xs font-bold text-amber-300">
+                      Total: {formatCurrency(totalBookingPrice)} • {totalBookingDuration} min
+                    </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {services.map((srv) => {
+                        const checked = selectedServiceIds.includes(srv.id);
+                        return (
+                          <button
+                            key={srv.id}
+                            type="button"
+                            onClick={() => toggleServiceSelection(srv.id)}
+                            className={`rounded-2xl border p-3.5 text-left ${
+                              checked ? 'border-amber-400 bg-slate-800' : 'border-slate-800 bg-slate-950'
+                            }`}
+                          >
+                            <div className="flex justify-between">
+                              <span className="text-xs font-extrabold text-white">{srv.name}</span>
+                              <span className="text-xs font-black text-emerald-400">{formatCurrency(srv.price)}</span>
+                            </div>
+                            <span className="text-[11px] text-slate-400">{srv.durationMinutes} min • {checked ? 'Selecionado ✓' : 'Clique para selecionar'}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <div className="flex justify-between">
+                      <button type="button" onClick={() => setStep(1)} className="px-4 py-2.5 rounded-xl bg-slate-800 text-xs font-bold">← Voltar</button>
+                      <button type="button" onClick={() => setStep(3)} className="px-6 py-3 rounded-xl bg-amber-500 text-slate-950 font-extrabold text-sm">Avançar para Data & Hora →</button>
+                    </div>
+                  </div>
+                )}
+
+                {step === 3 && (
+                  <div className="space-y-4">
+                    <div className="flex gap-2 overflow-x-auto pb-2">
+                      {getNextDays(14).map((d) => (
+                        <button
+                          key={d.iso}
+                          type="button"
+                          onClick={() => { setSelectedDate(d.iso); setSelectedTime(''); }}
+                          className={`shrink-0 w-20 rounded-2xl border p-2.5 text-center ${
+                            d.iso === selectedDate ? 'border-amber-400 bg-amber-500 text-slate-950 font-extrabold' : 'border-slate-800 bg-slate-950 text-slate-300'
+                          }`}
+                        >
+                          <span className="text-[11px] block">{d.weekday}</span>
+                          <span className="text-lg font-black block">{d.dayNumber}</span>
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="grid grid-cols-3 sm:grid-cols-6 gap-2.5">
+                      {availableTimeSlots.map((slot) => (
+                        <button
+                          key={slot}
+                          type="button"
+                          onClick={() => setSelectedTime(slot)}
+                          className={`py-2.5 rounded-xl text-xs font-extrabold border ${
+                            slot === selectedTime ? 'bg-amber-500 text-slate-950 border-amber-400' : 'bg-slate-950 text-white border-slate-800'
+                          }`}
+                        >
+                          {slot}
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="flex justify-between">
+                      <button type="button" onClick={() => setStep(2)} className="px-4 py-2.5 rounded-xl bg-slate-800 text-xs font-bold">← Voltar</button>
+                      <button type="button" disabled={!selectedTime} onClick={() => setStep(4)} className="px-6 py-3 rounded-xl bg-amber-500 disabled:opacity-40 text-slate-950 font-extrabold text-sm">Avançar para Pré-Cadastro →</button>
+                    </div>
+                  </div>
+                )}
+
+                {step === 4 && (
+                  <form onSubmit={handleConfirmBooking} className="space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-bold uppercase text-slate-300 mb-1">Nome Completo *</label>
+                        <input type="text" required value={clientName} onChange={(e) => setClientName(e.target.value)} placeholder="Seu nome completo" className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white" />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold uppercase text-slate-300 mb-1">Data de Nascimento *</label>
+                        <input type="date" required value={clientBirthDate} onChange={(e) => setClientBirthDate(e.target.value)} className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white" />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold uppercase text-slate-300 mb-1">Telefone / WhatsApp *</label>
+                        <input type="tel" required value={clientPhone} onChange={(e) => setClientPhone(formatPhoneMask(e.target.value))} placeholder="(19) 99999-9999" className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white" />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold uppercase text-slate-300 mb-1">Data do Agendamento *</label>
+                        <input type="date" required value={selectedDate} onChange={(e) => { setSelectedDate(e.target.value); setSelectedTime(''); }} className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white" />
+                      </div>
+                    </div>
+
+                    <div className="flex justify-between pt-2">
+                      <button type="button" onClick={() => setStep(3)} className="px-4 py-2.5 rounded-xl bg-slate-800 text-xs font-bold">← Voltar</button>
+                      <button type="submit" className="px-6 py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-sm">
+                        Concluir Pré-Cadastro e Agendar
+                      </button>
+                    </div>
+                  </form>
+                )}
+              </div>
+            )}
+
+            {/* CHECK-IN NA CADEIRA */}
+            {view === 'checkin' && (
+              <div className="max-w-xl mx-auto rounded-3xl bg-slate-900 border border-slate-800 p-6 space-y-4">
+                <h1 className="text-2xl font-black text-white">Check-in na Cadeira (Encaixe)</h1>
+                <p className="text-xs text-slate-400">Digite o código do encaixe informado pelo barbeiro (ex: MRB-8412).</p>
+                {checkinDoneInfo && (
+                  <div className="p-3.5 rounded-xl bg-emerald-950/50 border border-emerald-500/40 text-xs text-emerald-200">
+                    ✓ Check-in confirmado para {checkinDoneInfo.clientName} ({checkinDoneInfo.code}). Retorno sugerido: {formatDateBR(checkinDoneInfo.suggestedReturnDate)}.
+                  </div>
+                )}
+                <form onSubmit={handleClientCheckinSubmit} className="space-y-3">
+                  <input type="text" required value={checkinCodeInput} onChange={(e) => setCheckinCodeInput(e.target.value.toUpperCase())} placeholder="Código (ex: MRB-8412)" className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white uppercase font-mono" />
+                  <input type="text" required value={checkinClientName} onChange={(e) => setCheckinClientName(e.target.value)} placeholder="Seu Nome Completo" className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white" />
+                  <input type="tel" required value={checkinClientPhone} onChange={(e) => setCheckinClientPhone(formatPhoneMask(e.target.value))} placeholder="WhatsApp com DDD" className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white" />
+                  <input type="date" value={checkinBirthDate} onChange={(e) => setCheckinBirthDate(e.target.value)} className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white" />
+                  <button type="submit" className="w-full py-3.5 rounded-xl bg-amber-500 text-slate-950 font-black text-sm">Confirmar Check-in</button>
+                </form>
+              </div>
+            )}
+
+            {/* MEUS HORÁRIOS */}
+            {view === 'my' && (
+              <div className="max-w-2xl mx-auto rounded-3xl bg-slate-900 border border-slate-800 p-6 space-y-4">
+                <h1 className="text-2xl font-black text-white">Meus Agendamentos</h1>
+                <input
+                  type="tel"
+                  value={mySearchPhone}
+                  onChange={(e) => setMySearchPhone(formatPhoneMask(e.target.value))}
+                  placeholder="Digite seu WhatsApp — ex: (19) 99123-4501"
+                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white"
+                />
+                <div className="space-y-3">
+                  {myAppointments.map((apt) => (
+                    <div key={apt.id} className="rounded-2xl bg-slate-950 border border-slate-800 p-4 flex justify-between items-center">
+                      <div>
+                        <span className="text-xs font-mono text-amber-400 font-bold">{apt.checkinCode}</span>
+                        <p className="text-sm font-extrabold text-white">{apt.clientName}</p>
+                        <p className="text-xs text-slate-400">{formatDateBR(apt.date)} às {apt.time} • {formatCurrency(apt.totalPrice)}</p>
+                      </div>
+                      <span className="text-xs font-bold px-2.5 py-1 rounded-lg bg-slate-800 text-slate-200">{apt.status}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* PAINEL DO BARBEIRO (PIN 1234) */}
+            {view === 'admin' && (
+              <div className="space-y-6">
+                {!adminUnlocked ? (
+                  <div className="max-w-md mx-auto rounded-3xl bg-slate-900 border border-slate-800 p-6 space-y-4">
+                    <h1 className="text-xl font-black text-white">Painel Administrativo — {shopInfo.name}</h1>
+                    <p className="text-xs text-slate-400">Digite o PIN de demonstração <strong className="text-amber-300">1234</strong> para acessar.</p>
+                    <form onSubmit={handleUnlockAdmin} className="space-y-3">
+                      <input
+                        type="password"
+                        value={pinInput}
+                        onChange={(e) => setPinInput(e.target.value)}
+                        placeholder="PIN (1234)"
+                        className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-center text-base font-mono text-white"
+                      />
+                      <button type="submit" className="w-full py-3 rounded-xl bg-amber-500 text-slate-950 font-black text-sm">
+                        Entrar no Painel
+                      </button>
+                    </form>
+                  </div>
+                ) : (
+                  <>
+                    <div className="rounded-2xl bg-slate-900 border border-slate-800 p-4 flex flex-wrap justify-between items-center gap-3">
+                      <div>
+                        <h1 className="text-lg font-black text-white">Painel de Gestão — {shopInfo.name}</h1>
+                        <p className="text-xs text-slate-400">PIN Demo: 1234</p>
+                      </div>
+                      <div className="flex gap-2">
+                        <button type="button" onClick={handleResetDemo} className="px-3.5 py-2 rounded-xl bg-slate-800 text-amber-300 border border-amber-500/30 text-xs font-extrabold">
+                          Resetar Demo
+                        </button>
+                        <button type="button" onClick={() => setAdminUnlocked(false)} className="px-3.5 py-2 rounded-xl bg-slate-950 text-slate-300 border border-slate-700 text-xs font-bold">
+                          Bloquear
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2 overflow-x-auto pb-1">
+                      {[
+                        { id: 'agenda', label: 'Agenda & Encaixe' },
+                        { id: 'finance', label: 'Financeiro' },
+                        { id: 'retention', label: 'Retorno 30d' },
+                        { id: 'birthdays', label: 'Aniversariantes' },
+                        { id: 'shop', label: 'Dados da Loja' }
+                      ].map((t) => (
+                        <button
+                          key={t.id}
+                          type="button"
+                          onClick={() => setAdminTab(t.id)}
+                          className={`shrink-0 px-3.5 py-2 rounded-xl text-xs font-extrabold border ${
+                            adminTab === t.id ? 'bg-amber-500 text-slate-950 border-amber-400' : 'bg-slate-900 text-slate-300 border-slate-800'
+                          }`}
+                        >
+                          {t.label}
+                        </button>
+                      ))}
+                    </div>
+
+                    {adminTab === 'agenda' && (
+                      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                        <form onSubmit={handleCreateWalkIn} className="lg:col-span-5 rounded-2xl bg-slate-900 border border-slate-800 p-5 space-y-3">
+                          <h2 className="text-sm font-extrabold uppercase text-amber-400">Encaixe Rápido (Com Data de Nascimento)</h2>
+                          {lastWalkInCheckin && (
+                            <div className="p-3 rounded-xl bg-emerald-950/50 border border-emerald-500/40 text-xs text-emerald-200">
+                              Código gerado: <strong className="font-mono text-white text-sm">{lastWalkInCheckin.code}</strong>
+                            </div>
+                          )}
+                          <input type="text" value={walkInForm.clientName} onChange={(e) => setWalkInForm({ ...walkInForm, clientName: e.target.value })} placeholder="Nome do cliente (opcional)" className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white" />
+                          <input type="tel" value={walkInForm.clientPhone} onChange={(e) => setWalkInForm({ ...walkInForm, clientPhone: formatPhoneMask(e.target.value) })} placeholder="WhatsApp (opcional)" className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white" />
+                          <div>
+                            <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1">Data de Nascimento</label>
+                            <input type="date" value={walkInForm.birthDate} onChange={(e) => setWalkInForm({ ...walkInForm, birthDate: e.target.value })} className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white" />
+                          </div>
+                          <select value={walkInForm.serviceId} onChange={(e) => setWalkInForm({ ...walkInForm, serviceId: e.target.value })} className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white">
+                            {services.map((s) => <option key={s.id} value={s.id}>{s.name} — {formatCurrency(s.price)}</option>)}
+                          </select>
+                          <select value={walkInForm.barberId} onChange={(e) => setWalkInForm({ ...walkInForm, barberId: e.target.value })} className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white">
+                            {activeBarbers.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
+                          </select>
+                          <div className="grid grid-cols-2 gap-2">
+                            <input type="date" value={walkInForm.date} onChange={(e) => setWalkInForm({ ...walkInForm, date: e.target.value })} className="bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white" />
+                            <input type="time" value={walkInForm.time} onChange={(e) => setWalkInForm({ ...walkInForm, time: e.target.value })} className="bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white" />
+                          </div>
+                          <button type="submit" className="w-full py-3 rounded-xl bg-amber-500 text-slate-950 font-black text-xs">Lançar Encaixe</button>
+                        </form>
+
+                        <div className="lg:col-span-7 rounded-2xl bg-slate-900 border border-slate-800 p-5 space-y-3">
+                          <div className="flex justify-between items-center">
+                            <h2 className="text-sm font-extrabold text-white">Agenda do Dia</h2>
+                            <input type="date" value={adminDate} onChange={(e) => setAdminDate(e.target.value)} className="bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white" />
+                          </div>
+                          {appointments.filter((a) => a.date === adminDate).map((apt) => (
+                            <div key={apt.id} className="rounded-xl bg-slate-950 border border-slate-800 p-3.5 flex flex-wrap justify-between items-center gap-2">
+                              <div>
+                                <span className="text-xs font-mono font-bold text-amber-400 mr-2">{apt.time}</span>
+                                <span className="text-sm font-extrabold text-white">{apt.clientName}</span>
+                                <p className="text-xs text-slate-400">
+                                  Código: {apt.checkinCode} • {formatCurrency(apt.totalPrice)}
+                                  {apt.birthDate ? ` • Nasc.: ${formatDateBR(apt.birthDate)}` : ''}
+                                </p>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => setAppointments((prev) => prev.map((x) => x.id === apt.id ? { ...x, status: 'completed' } : x))}
+                                className="px-3 py-1.5 rounded-lg bg-emerald-500 text-slate-950 text-xs font-extrabold"
+                              >
+                                {apt.status === 'completed' ? 'Concluído ✓' : 'Concluir'}
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {adminTab === 'finance' && (
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div className="rounded-2xl bg-slate-900 border border-slate-800 p-5">
+                          <span className="text-xs text-slate-400">Faturamento Semanal</span>
+                          <p className="text-2xl font-black text-emerald-400 mt-1">{formatCurrency(financialAnalytics.weekRevenue)}</p>
+                          <span className="text-xs text-slate-400">{financialAnalytics.weekCount} atendimentos</span>
+                        </div>
+                        <div className="rounded-2xl bg-slate-900 border border-slate-800 p-5">
+                          <span className="text-xs text-slate-400">Faturamento Mensal</span>
+                          <p className="text-2xl font-black text-white mt-1">{formatCurrency(financialAnalytics.monthRevenue)}</p>
+                          <span className="text-xs text-slate-400">{financialAnalytics.monthCount} atendimentos</span>
+                        </div>
+                        <div className="rounded-2xl bg-slate-900 border border-slate-800 p-5">
+                          <span className="text-xs text-slate-400">Ticket Médio</span>
+                          <p className="text-2xl font-black text-amber-400 mt-1">{formatCurrency(financialAnalytics.avgTicket)}</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {adminTab === 'retention' && (
+                      <div className="rounded-2xl bg-slate-900 border border-slate-800 p-5 space-y-3">
+                        <h2 className="text-lg font-black text-white">Radar de Retorno (Ciclo de 30 Dias)</h2>
+                        {retentionClients.map((item) => (
+                          <div key={item.appointmentId} className="rounded-xl bg-slate-950 border border-slate-800 p-4 flex flex-wrap justify-between items-center gap-3">
+                            <div>
+                              <p className="text-sm font-extrabold text-white">{item.clientName} ({item.elapsedDays} dias)</p>
+                              <p className="text-xs text-slate-400">Data propícia: {formatDateBR(item.suggestedDate)} às {item.suggestedTime}</p>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const msg = `Fala *${item.clientName}*, aqui é da *${shopInfo.name}*! Seu corte completou ${item.elapsedDays} dias. Que tal agendar dia ${formatDateBR(item.suggestedDate)} às ${item.suggestedTime}?`;
+                                window.open(buildWhatsAppUrl(item.clientPhone, msg), '_blank', 'noopener,noreferrer');
+                              }}
+                              className="px-4 py-2 rounded-xl bg-emerald-500 text-slate-950 font-extrabold text-xs"
+                            >
+                              Disparar Retorno 30d
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {adminTab === 'birthdays' && (
+                      <div className="rounded-2xl bg-slate-900 border border-slate-800 p-5 space-y-3">
+                        <h2 className="text-lg font-black text-white">Aniversariantes — Disparar Parabéns</h2>
+                        {birthdayClients.map((b) => (
+                          <div key={b.appointmentId} className="rounded-xl bg-slate-950 border border-slate-800 p-4 flex flex-wrap justify-between items-center gap-3">
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm font-extrabold text-white">{b.clientName}</span>
+                                <span className="text-xs px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-bold">
+                                  {b.birthMonthDay} ({formatDateBR(b.birthDate)})
+                                </span>
+                                {b.isTodayBirthday && (
+                                  <span className="text-[11px] px-2 py-0.5 rounded-full bg-emerald-500 text-slate-950 font-black">
+                                    🎉 É HOJE!
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-xs text-slate-400">WhatsApp: {b.clientPhone}</p>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => handleSendBirthdayWish(b)}
+                              className="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs"
+                            >
+                              🎉 Disparar Parabéns
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {adminTab === 'shop' && (
+                      <div className="rounded-2xl bg-slate-900 border border-slate-800 p-5 space-y-3">
+                        <h2 className="text-lg font-black text-white">Dados da Barbearia</h2>
+                        <input type="text" value={shopInfo.name} onChange={(e) => setShopInfo({ ...shopInfo, name: e.target.value })} className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white" />
+                        <input type="text" value={shopInfo.slogan} onChange={(e) => setShopInfo({ ...shopInfo, slogan: e.target.value })} className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white" />
+                        <input type="text" value={shopInfo.address} onChange={(e) => setShopInfo({ ...shopInfo, address: e.target.value })} className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white" />
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
+          </main>
+
+          {/* Footer */}
+          <footer className="border-t border-slate-800 bg-slate-950 py-6 px-4 sm:px-6 mt-8">
+            <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div>
+                <p className="text-xs font-extrabold text-white">{shopInfo.name} • {shopInfo.city}/{shopInfo.state}</p>
+                <p className="text-[11px] text-amber-300">{shopInfo.slogan}</p>
+              </div>
+              <button
+                type="button"
+                onClick={handleInstallAppClick}
+                className="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-amber-300 border border-amber-500/30 text-xs font-extrabold"
+              >
+                Instalar App no Celular (Tela Inicial)
+              </button>
+            </div>
+          </footer>
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
