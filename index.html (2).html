@@ -46,7 +46,7 @@
       </button>
     </div>
 
-    <!-- ABA 1: AGENDAMENTO ONLINE (1. Serviço -> 2. Data & Horário -> 3. Barbeiro Livre -> 4. Dados) -->
+    <!-- ABA 1: AGENDAMENTO ONLINE -->
     <section id="section-booking" class="space-y-6">
 
       <!-- Passo 1: Cortes Tradicionais -->
@@ -107,7 +107,7 @@
       </form>
     </section>
 
-    <!-- ABA 2: CHECK-IN NA BARBEARIA (Libera atendimento presencial inclusive com barbeiro ocupado) -->
+    <!-- ABA 2: CHECK-IN NA BARBEARIA -->
     <section id="section-checkin" class="hidden space-y-5">
       <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5 space-y-4">
         <div>
@@ -151,7 +151,7 @@
     <div class="flex flex-wrap items-center justify-between gap-3 bg-zinc-900 border border-zinc-800 p-4 rounded-xl">
       <div>
         <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">SUPER ADMIN • MR. BARBA VALINHOS</span>
-        <h2 class="text-lg font-bold text-white">Painel de Gestão & Segurança</h2>
+        <h2 class="text-lg font-bold text-white">Painel de Gestão, Equipe & Segurança</h2>
       </div>
       <div class="flex gap-2">
         <button onclick="resetDemoData()" class="px-3 py-2 rounded-lg text-xs font-semibold bg-zinc-800 hover:bg-zinc-700 text-zinc-200">
@@ -165,31 +165,41 @@
 
     <!-- Abas Admin -->
     <div class="flex gap-2 border-b border-zinc-800 pb-3 overflow-x-auto">
-      <button onclick="switchAdminTab('agenda')" id="admin-tab-agenda" class="px-4 py-2 rounded-lg text-xs font-semibold gold-bg">
+      <button onclick="switchAdminTab('agenda')" id="admin-tab-agenda" class="px-4 py-2 rounded-lg text-xs font-semibold gold-bg whitespace-nowrap">
         Agenda & Check-ins
       </button>
-      <button onclick="switchAdminTab('birthdays')" id="admin-tab-birthdays" class="px-4 py-2 rounded-lg text-xs font-semibold bg-zinc-900 text-zinc-300">
+      <button onclick="switchAdminTab('team')" id="admin-tab-team" class="px-4 py-2 rounded-lg text-xs font-semibold bg-zinc-900 text-zinc-300 whitespace-nowrap">
+        Produtividade da Equipe
+      </button>
+      <button onclick="switchAdminTab('improvements')" id="admin-tab-improvements" class="px-4 py-2 rounded-lg text-xs font-semibold bg-zinc-900 text-zinc-300 whitespace-nowrap">
+        Pontos de Melhoria & Retorno
+      </button>
+      <button onclick="switchAdminTab('birthdays')" id="admin-tab-birthdays" class="px-4 py-2 rounded-lg text-xs font-semibold bg-zinc-900 text-zinc-300 whitespace-nowrap">
         Aniversariantes
       </button>
-      <button onclick="switchAdminTab('backups')" id="admin-tab-backups" class="px-4 py-2 rounded-lg text-xs font-semibold bg-zinc-900 text-zinc-300">
+      <button onclick="switchAdminTab('backups')" id="admin-tab-backups" class="px-4 py-2 rounded-lg text-xs font-semibold bg-zinc-900 text-zinc-300 whitespace-nowrap">
         Backups (30 Dias)
       </button>
     </div>
 
     <!-- ADMIN ABA 1: AGENDA -->
     <div id="admin-panel-agenda" class="space-y-4">
-      <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div class="bg-zinc-900 border border-zinc-800 p-4 rounded-xl">
-          <p class="text-xs text-zinc-400">Atendimentos Registrados</p>
+          <p class="text-xs text-zinc-400">Atendimentos</p>
           <p id="stat-total-bookings" class="text-2xl font-bold text-white mt-1">0</p>
         </div>
         <div class="bg-zinc-900 border border-zinc-800 p-4 rounded-xl">
-          <p class="text-xs text-zinc-400">Receita Prevista</p>
+          <p class="text-xs text-zinc-400">Receita Total</p>
           <p id="stat-revenue" class="text-2xl font-bold gold-accent mt-1">R$ 0,00</p>
         </div>
-        <div class="bg-zinc-900 border border-zinc-800 p-4 rounded-xl col-span-2 sm:col-span-1">
+        <div class="bg-zinc-900 border border-zinc-800 p-4 rounded-xl">
+          <p class="text-xs text-zinc-400">Ticket Médio</p>
+          <p id="stat-avg-ticket" class="text-2xl font-bold text-white mt-1">R$ 0,00</p>
+        </div>
+        <div class="bg-zinc-900 border border-zinc-800 p-4 rounded-xl">
           <p class="text-xs text-zinc-400">Último Backup</p>
-          <p id="stat-last-backup" class="text-sm font-semibold text-emerald-400 mt-2">Hoje</p>
+          <p id="stat-last-backup" class="text-xs font-semibold text-emerald-400 mt-2">Hoje</p>
         </div>
       </div>
 
@@ -199,19 +209,71 @@
       </div>
     </div>
 
-    <!-- ADMIN ABA 2: ANIVERSARIANTES -->
+    <!-- ADMIN ABA 2: PRODUTIVIDADE DA EQUIPE -->
+    <div id="admin-panel-team" class="hidden space-y-5">
+      <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h3 class="font-bold text-white text-base">Desempenho Individual & Repasse (50%)</h3>
+            <p class="text-xs text-zinc-400">Acompanhe produção, ticket médio, ocupação e taxa de combos por barbeiro</p>
+          </div>
+          <span class="text-xs px-3 py-1 rounded-full bg-amber-500/10 text-amber-400 font-semibold">Meta Diária: 8 atend./barbeiro</span>
+        </div>
+        <div id="team-productivity-grid" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+      </div>
+
+      <!-- Registro de Feedback / Ponto de Melhoria Individual -->
+      <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5 space-y-4">
+        <h3 class="font-bold text-white text-sm">Registrar Feedback ou Ajuste Operacional para Barbeiro</h3>
+        <form onsubmit="addBarberNote(event)" class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+          <select id="note-barber-id" class="bg-zinc-950 border border-zinc-700 rounded-lg px-3 py-2.5 text-xs text-white"></select>
+          <input type="text" id="note-text" required placeholder="Ex: Oferecer combo barba no fechamento do corte"
+            class="sm:col-span-2 bg-zinc-950 border border-zinc-700 rounded-lg px-3 py-2.5 text-xs text-white" />
+          <button type="submit" class="py-2.5 px-4 rounded-lg text-xs font-bold gold-bg">Salvar Feedback</button>
+        </form>
+        <div id="barber-notes-list" class="space-y-2 pt-2"></div>
+      </div>
+    </div>
+
+    <!-- ADMIN ABA 3: PONTOS DE MELHORIA & RETORNO 30 DIAS -->
+    <div id="admin-panel-improvements" class="hidden space-y-5">
+      <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5 space-y-4">
+        <div>
+          <h3 class="font-bold text-white text-base">Diagnóstico Automático da Barbearia</h3>
+          <p class="text-xs text-zinc-400">Insights gerados em tempo real com base na agenda e nos serviços vendidos</p>
+        </div>
+        <div id="smart-insights-list" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+      </div>
+
+      <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5 space-y-4">
+        <h3 class="font-bold text-white text-sm">Plano de Ação & Melhorias Contínuas</h3>
+        <form onsubmit="addImprovementItem(event)" class="flex flex-col sm:flex-row gap-2">
+          <input type="text" id="improvement-input" required placeholder="Adicionar nova melhoria (ex: Criar cartão fidelidade 10 cortes)"
+            class="flex-1 bg-zinc-950 border border-zinc-700 rounded-lg px-3.5 py-2.5 text-xs text-white" />
+          <button type="submit" class="px-4 py-2.5 rounded-lg text-xs font-bold gold-bg">Adicionar</button>
+        </form>
+        <div id="improvements-checklist" class="space-y-2"></div>
+      </div>
+
+      <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5 space-y-3">
+        <h3 class="font-bold text-white text-sm">Radar de Retorno (Clientes há +25 dias sem cortar)</h3>
+        <div id="retention-list" class="space-y-2"></div>
+      </div>
+    </div>
+
+    <!-- ADMIN ABA 4: ANIVERSARIANTES -->
     <div id="admin-panel-birthdays" class="hidden bg-zinc-900 border border-zinc-800 rounded-xl p-5 space-y-4">
       <h3 class="font-bold text-white">Aniversariantes do Dia (Disparo WhatsApp)</h3>
       <div id="admin-birthdays-list" class="space-y-3"></div>
     </div>
 
-    <!-- ADMIN ABA 3: BACKUPS AUTOMÁTICOS E MANUAIS -->
+    <!-- ADMIN ABA 5: BACKUPS AUTOMÁTICOS E MANUAIS (.SQL + EXCEL .CSV) -->
     <div id="admin-panel-backups" class="hidden space-y-4">
       <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5 flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h3 class="font-bold text-white text-base">Backup Automático Diário & Manual (.SQL)</h3>
+          <h3 class="font-bold text-white text-base">Backup Automático Diário & Manual (.SQL e Excel)</h3>
           <p class="text-xs text-zinc-400 mt-1">
-            Gerado automaticamente no 1º acesso do dia com retenção de 30 dias. Gere um backup manual antes de qualquer alteração.
+            Gerado automaticamente no 1º acesso do dia com retenção de 30 dias. Baixe o banco técnico (.SQL) ou a planilha para Excel (.CSV).
           </p>
         </div>
         <button onclick="createBackup('Backup manual')" class="px-4 py-2.5 rounded-lg text-xs font-bold gold-bg transition">
@@ -228,7 +290,7 @@
               <th class="py-3 px-4">Responsável</th>
               <th class="py-3 px-4">Arquivo</th>
               <th class="py-3 px-4">Tamanho</th>
-              <th class="py-3 px-4 text-right">Ações</th>
+              <th class="py-3 px-4 text-right">Downloads</th>
             </tr>
           </thead>
           <tbody id="backups-table-body" class="divide-y divide-zinc-800 text-zinc-200"></tbody>
@@ -257,7 +319,6 @@
   </footer>
 
   <script>
-    // Cortes tradicionais diretos
     const SERVICES = [
       { id: 's1', name: 'Corte de Cabelo', price: 45, durationMin: 30 },
       { id: 's2', name: 'Barba', price: 35, durationMin: 30 },
@@ -265,11 +326,10 @@
       { id: 's4', name: 'Sobrancelha / Acabamento', price: 20, durationMin: 30 }
     ];
 
-    // Equipe de 3 Barbeiros
     const BARBERS = [
-      { id: 'b1', name: 'Rafael (Mestre)', role: 'Corte Tradicional & Barba', days: [1, 2, 3, 4, 5, 6] },
-      { id: 'b2', name: 'Lucas Silva', role: 'Degradê & Navalha', days: [1, 2, 3, 4, 5, 6] },
-      { id: 'b3', name: 'Matheus Costa', role: 'Corte & Barba', days: [1, 2, 3, 4, 5, 6] }
+      { id: 'b1', name: 'Rafael (Mestre)', role: 'Corte Tradicional & Barba', days: [1, 2, 3, 4, 5, 6], commissionRate: 0.50 },
+      { id: 'b2', name: 'Lucas Silva', role: 'Degradê & Navalha', days: [1, 2, 3, 4, 5, 6], commissionRate: 0.50 },
+      { id: 'b3', name: 'Matheus Costa', role: 'Corte & Barba', days: [1, 2, 3, 4, 5, 6], commissionRate: 0.50 }
     ];
 
     const ALL_SLOTS = [
@@ -279,13 +339,15 @@
     ];
 
     let state = {
-      selectedService: 's3', // Combo Corte + Barba por padrão
+      selectedService: 's3',
       selectedDate: new Date().toISOString().split('T')[0],
       selectedSlot: '00:00',
       selectedBarber: null,
       checkinBarber: 'b3',
       bookings: [],
-      backups: []
+      backups: [],
+      barberNotes: [],
+      improvements: []
     };
 
     function timeToMinutes(timeStr) {
@@ -308,14 +370,16 @@
     }
 
     function initApp() {
-      const savedBookings = localStorage.getItem('mrbarba_bookings_v4');
-      const savedBackups = localStorage.getItem('mrbarba_backups_v4');
+      const savedBookings = localStorage.getItem('mrbarba_bookings_v5');
+      const savedBackups = localStorage.getItem('mrbarba_backups_v5');
+      const savedNotes = localStorage.getItem('mrbarba_notes_v5');
+      const savedImprovements = localStorage.getItem('mrbarba_improvements_v5');
       const today = new Date().toISOString().split('T')[0];
+      const pastDate = new Date(Date.now() - 32 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
       if (savedBookings) {
         state.bookings = JSON.parse(savedBookings);
       } else {
-        // Exemplo inicial: Matheus Costa ocupado às 00:00 (Rafael e Lucas livres às 00:00; Matheus liberado no Check-in presencial)
         state.bookings = [
           {
             id: 'bk-demo-1',
@@ -327,10 +391,42 @@
             barberId: 'b3',
             date: today,
             time: '00:00'
+          },
+          {
+            id: 'bk-demo-2',
+            type: 'Check-in Presencial',
+            customerName: 'Ricardo Mendes',
+            customerPhone: '19997776655',
+            customerBirth: '1992-05-14',
+            serviceId: 's3',
+            barberId: 'b1',
+            date: today,
+            time: '10:30'
+          },
+          {
+            id: 'bk-demo-3',
+            type: 'Agendamento Online',
+            customerName: 'Felipe Augusto',
+            customerPhone: '19996665544',
+            customerBirth: '1995-08-20',
+            serviceId: 's1',
+            barberId: 'b2',
+            date: pastDate,
+            time: '14:00'
           }
         ];
         saveBookings();
       }
+
+      state.barberNotes = savedNotes ? JSON.parse(savedNotes) : [
+        { id: 'n1', barberId: 'b2', text: 'Excelente velocidade no degradê; estimular oferta de barba + sobrancelha no balcão.', date: today }
+      ];
+
+      state.improvements = savedImprovements ? JSON.parse(savedImprovements) : [
+        { id: 'imp1', text: 'Oferecer Combo Corte + Barba com R$ 10 de desconto nas terças e quartas (dias mais calmos)', done: false },
+        { id: 'imp2', text: 'Implantar disparo automático de WhatsApp após 30 dias do último corte', done: true },
+        { id: 'imp3', text: 'Colocar QR Code na bancada para check-in rápido sem fila', done: false }
+      ];
 
       state.backups = savedBackups ? JSON.parse(savedBackups) : [];
       runDailyAutoBackup();
@@ -342,14 +438,22 @@
     }
 
     function saveBookings() {
-      localStorage.setItem('mrbarba_bookings_v4', JSON.stringify(state.bookings));
+      localStorage.setItem('mrbarba_bookings_v5', JSON.stringify(state.bookings));
+    }
+
+    function saveNotes() {
+      localStorage.setItem('mrbarba_notes_v5', JSON.stringify(state.barberNotes));
+    }
+
+    function saveImprovements() {
+      localStorage.setItem('mrbarba_improvements_v5', JSON.stringify(state.improvements));
     }
 
     function saveBackups() {
       const thirtyDaysMs = 30 * 24 * 60 * 60 * 1000;
       const now = Date.now();
       state.backups = state.backups.filter(b => (now - b.timestamp) <= thirtyDaysMs);
-      localStorage.setItem('mrbarba_backups_v4', JSON.stringify(state.backups));
+      localStorage.setItem('mrbarba_backups_v5', JSON.stringify(state.backups));
     }
 
     function runDailyAutoBackup() {
@@ -368,6 +472,17 @@
       return sql;
     }
 
+    function generateCsvDump() {
+      // BOM UTF-8 para abrir com acentos corretos direto no Excel
+      let csv = '\uFEFFID;Tipo;Cliente;WhatsApp;Nascimento;Servico;Barbeiro;Data;Horario;Valor (R$)\n';
+      state.bookings.forEach(b => {
+        const srv = SERVICES.find(s => s.id === b.serviceId);
+        const brb = BARBERS.find(br => br.id === b.barberId);
+        csv += `"${b.id}";"${b.type}";"${b.customerName}";"${b.customerPhone}";"${b.customerBirth || ''}";"${srv?.name || ''}";"${brb?.name || ''}";"${b.date}";"${b.time}";"${srv?.price || 0},00"\n`;
+      });
+      return csv;
+    }
+
     function createBackup(type = 'Backup manual', silent = false) {
       const now = new Date();
       const dateKey = now.toISOString().split('T')[0];
@@ -376,6 +491,7 @@
       const prefix = type === 'Backup automático' ? 'MRBARBA_AUTO' : 'MRBARBA_MANUAL';
       const fileName = `${prefix}_${dateKey}_${timeStr.replace(':', '-')}.sql`;
       const sqlContent = generateSqlDump();
+      const csvContent = generateCsvDump();
       const sizeKb = Math.max(1.2, (new Blob([sqlContent]).size / 1024)).toFixed(1);
 
       state.backups.unshift({
@@ -387,7 +503,8 @@
         owner: type === 'Backup automático' ? 'SISTEMA (1º ACESSO)' : 'HEITOR FERREIRA NETO',
         fileName,
         sizeKb: `${sizeKb} KB`,
-        sqlContent
+        sqlContent,
+        csvContent
       });
 
       saveBackups();
@@ -403,6 +520,19 @@
       const a = document.createElement('a');
       a.href = url;
       a.download = bkp.fileName;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function downloadBackupCsv(id) {
+      const bkp = state.backups.find(b => b.id === id);
+      if (!bkp) return;
+      const csvData = bkp.csvContent || generateCsvDump();
+      const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = bkp.fileName.replace('.sql', '.csv');
       a.click();
       URL.revokeObjectURL(url);
     }
@@ -534,7 +664,7 @@
         return;
       }
 
-      const newBooking = {
+      state.bookings.push({
         id: 'bk-' + Date.now(),
         type: 'Agendamento Online',
         customerName: document.getElementById('cust-name').value.trim(),
@@ -544,9 +674,8 @@
         barberId: state.selectedBarber,
         date: state.selectedDate,
         time: state.selectedSlot
-      };
+      });
 
-      state.bookings.push(newBooking);
       saveBookings();
       e.target.reset();
       handleDateOrTimeChange();
@@ -588,7 +717,7 @@
       const today = now.toISOString().split('T')[0];
       const timeStr = now.toTimeString().slice(0, 5);
 
-      const newCheckin = {
+      state.bookings.push({
         id: 'chk-' + Date.now(),
         type: 'Check-in Presencial',
         customerName: document.getElementById('checkin-name').value.trim(),
@@ -598,9 +727,8 @@
         barberId: state.checkinBarber,
         date: today,
         time: timeStr
-      };
+      });
 
-      state.bookings.push(newCheckin);
       saveBookings();
       e.target.reset();
       alert('Check-in presencial registrado! O barbeiro foi notificado.');
@@ -644,21 +772,25 @@
     }
 
     function switchAdminTab(tab) {
-      ['agenda', 'birthdays', 'backups'].forEach(t => {
+      ['agenda', 'team', 'improvements', 'birthdays', 'backups'].forEach(t => {
         document.getElementById(`admin-panel-${t}`).classList.toggle('hidden', t !== tab);
         document.getElementById(`admin-tab-${t}`).className = t === tab
-          ? 'px-4 py-2 rounded-lg text-xs font-semibold gold-bg'
-          : 'px-4 py-2 rounded-lg text-xs font-semibold bg-zinc-900 text-zinc-300';
+          ? 'px-4 py-2 rounded-lg text-xs font-semibold gold-bg whitespace-nowrap'
+          : 'px-4 py-2 rounded-lg text-xs font-semibold bg-zinc-900 text-zinc-300 whitespace-nowrap';
       });
     }
 
     function renderAdmin() {
-      document.getElementById('stat-total-bookings').textContent = state.bookings.length;
+      const totalCount = state.bookings.length;
       const totalRev = state.bookings.reduce((acc, bk) => {
         const srv = SERVICES.find(s => s.id === bk.serviceId);
         return acc + (srv ? srv.price : 0);
       }, 0);
+      const avgTicket = totalCount > 0 ? totalRev / totalCount : 0;
+
+      document.getElementById('stat-total-bookings').textContent = totalCount;
       document.getElementById('stat-revenue').textContent = `R$ ${totalRev.toFixed(2).replace('.', ',')}`;
+      document.getElementById('stat-avg-ticket').textContent = `R$ ${avgTicket.toFixed(2).replace('.', ',')}`;
       document.getElementById('stat-last-backup').textContent = state.backups[0] ? state.backups[0].formattedDate : 'Pendente';
 
       const list = document.getElementById('admin-bookings-list');
@@ -681,6 +813,9 @@
           </div>
         `;
       }).join('');
+
+      renderTeamProductivity();
+      renderImprovementsAndInsights();
 
       const todayMD = new Date().toISOString().slice(5, 10);
       const bdays = state.bookings.filter(bk => bk.customerBirth && bk.customerBirth.slice(5, 10) === todayMD);
@@ -708,18 +843,217 @@
           <td class="py-3 px-4">${b.owner}</td>
           <td class="py-3 px-4 font-mono text-zinc-300">${b.fileName}</td>
           <td class="py-3 px-4">${b.sizeKb}</td>
-          <td class="py-3 px-4 text-right">
-            <button onclick="downloadBackup('${b.id}')" class="px-3 py-1.5 rounded bg-zinc-800 hover:bg-zinc-700 font-bold text-white">
-              BAIXAR
+          <td class="py-3 px-4 text-right space-x-1.5 whitespace-nowrap">
+            <button onclick="downloadBackup('${b.id}')" class="px-2.5 py-1.5 rounded bg-zinc-800 hover:bg-zinc-700 font-bold text-white">
+              BAIXAR (.SQL)
+            </button>
+            <button onclick="downloadBackupCsv('${b.id}')" class="px-2.5 py-1.5 rounded bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600/30 font-bold">
+              EXCEL (.CSV)
             </button>
           </td>
         </tr>
       `).join('');
     }
 
+    function renderTeamProductivity() {
+      const grid = document.getElementById('team-productivity-grid');
+      const dailyGoal = 8;
+
+      grid.innerHTML = BARBERS.map(b => {
+        const bBookings = state.bookings.filter(bk => bk.barberId === b.id);
+        const onlineCount = bBookings.filter(bk => bk.type === 'Agendamento Online').length;
+        const checkinCount = bBookings.filter(bk => bk.type === 'Check-in Presencial').length;
+        const combosCount = bBookings.filter(bk => bk.serviceId === 's3').length;
+        const grossRev = bBookings.reduce((sum, bk) => {
+          const srv = SERVICES.find(s => s.id === bk.serviceId);
+          return sum + (srv ? srv.price : 0);
+        }, 0);
+        const commission = grossRev * b.commissionRate;
+        const barberTicket = bBookings.length > 0 ? grossRev / bBookings.length : 0;
+        const goalPct = Math.min(100, Math.round((bBookings.length / dailyGoal) * 100));
+
+        return `
+          <div class="bg-zinc-950 border border-zinc-800 rounded-xl p-4 space-y-3">
+            <div class="flex justify-between items-start">
+              <div>
+                <h4 class="font-bold text-sm text-white">${b.name}</h4>
+                <p class="text-[11px] text-zinc-400">${b.role}</p>
+              </div>
+              <span class="text-xs font-bold px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400">
+                ${bBookings.length} atend.
+              </span>
+            </div>
+
+            <div class="space-y-1">
+              <div class="flex justify-between text-[11px] text-zinc-400">
+                <span>Meta Diária (${bBookings.length}/${dailyGoal})</span>
+                <span>${goalPct}%</span>
+              </div>
+              <div class="w-full h-2 bg-zinc-800 rounded-full overflow-hidden">
+                <div class="h-full gold-bg" style="width: ${goalPct}%"></div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 pt-1 text-xs">
+              <div class="bg-zinc-900 p-2 rounded-lg">
+                <span class="text-[10px] text-zinc-400 block">Faturado</span>
+                <span class="font-bold text-white">R$ ${grossRev.toFixed(2).replace('.', ',')}</span>
+              </div>
+              <div class="bg-zinc-900 p-2 rounded-lg">
+                <span class="text-[10px] text-zinc-400 block">Comissão (50%)</span>
+                <span class="font-bold gold-accent">R$ ${commission.toFixed(2).replace('.', ',')}</span>
+              </div>
+              <div class="bg-zinc-900 p-2 rounded-lg">
+                <span class="text-[10px] text-zinc-400 block">Ticket Médio</span>
+                <span class="font-semibold text-zinc-200">R$ ${barberTicket.toFixed(2).replace('.', ',')}</span>
+              </div>
+              <div class="bg-zinc-900 p-2 rounded-lg">
+                <span class="text-[10px] text-zinc-400 block">Online / Check-in</span>
+                <span class="font-semibold text-zinc-200">${onlineCount} / ${checkinCount} (${combosCount} combos)</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      const select = document.getElementById('note-barber-id');
+      select.innerHTML = BARBERS.map(b => `<option value="${b.id}">${b.name}</option>`).join('');
+
+      const notesList = document.getElementById('barber-notes-list');
+      notesList.innerHTML = state.barberNotes.map(n => {
+        const brb = BARBERS.find(b => b.id === n.barberId);
+        return `
+          <div class="flex items-center justify-between bg-zinc-950 border border-zinc-800 px-3.5 py-2.5 rounded-lg text-xs">
+            <div>
+              <span class="font-bold gold-accent">${brb?.name || 'Equipe'}:</span>
+              <span class="text-zinc-200 ml-1">${n.text}</span>
+            </div>
+            <button onclick="deleteBarberNote('${n.id}')" class="text-zinc-500 hover:text-red-400 ml-3">Excluir</button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function addBarberNote(e) {
+      e.preventDefault();
+      const barberId = document.getElementById('note-barber-id').value;
+      const text = document.getElementById('note-text').value.trim();
+      if (!text) return;
+      state.barberNotes.unshift({
+        id: 'note-' + Date.now(),
+        barberId,
+        text,
+        date: new Date().toISOString().split('T')[0]
+      });
+      saveNotes();
+      e.target.reset();
+      renderTeamProductivity();
+    }
+
+    function deleteBarberNote(id) {
+      state.barberNotes = state.barberNotes.filter(n => n.id !== id);
+      saveNotes();
+      renderTeamProductivity();
+    }
+
+    function renderImprovementsAndInsights() {
+      const total = state.bookings.length;
+      const combos = state.bookings.filter(b => b.serviceId === 's3').length;
+      const comboShare = total > 0 ? Math.round((combos / total) * 100) : 0;
+      const checkins = state.bookings.filter(b => b.type === 'Check-in Presencial').length;
+
+      const insights = [
+        {
+          title: 'Conversão em Combo (Corte + Barba)',
+          badge: `${comboShare}% dos atendimentos`,
+          desc: comboShare < 50
+            ? 'Ponto de melhoria: menos da metade dos clientes fecha combo. Treinar a equipe para oferecer barba com desconto na cadeira.'
+            : 'Excelente ticket! Mais da metade dos clientes está escolhendo o pacote completo.'
+        },
+        {
+          title: 'Fluxo Presencial vs. Online',
+          badge: `${checkins} check-in(s) presencial`,
+          desc: 'Clientes que chegam sem horário estão sendo capturados no Check-in presencial, alimentando a base de retorno de 30 dias.'
+        }
+      ];
+
+      document.getElementById('smart-insights-list').innerHTML = insights.map(ins => `
+        <div class="bg-zinc-950 border border-zinc-800 p-4 rounded-xl space-y-1.5">
+          <div class="flex justify-between items-center">
+            <h4 class="font-bold text-xs text-white">${ins.title}</h4>
+            <span class="text-[10px] px-2 py-0.5 rounded bg-amber-500/15 text-amber-400 font-semibold">${ins.badge}</span>
+          </div>
+          <p class="text-xs text-zinc-400 leading-relaxed">${ins.desc}</p>
+        </div>
+      `).join('');
+
+      const checklist = document.getElementById('improvements-checklist');
+      checklist.innerHTML = state.improvements.map(item => `
+        <div class="flex items-center justify-between bg-zinc-950 border border-zinc-800 px-3.5 py-2.5 rounded-lg text-xs">
+          <label class="flex items-center gap-2.5 cursor-pointer">
+            <input type="checkbox" ${item.done ? 'checked' : ''} onchange="toggleImprovement('${item.id}')" class="accent-amber-500 w-4 h-4" />
+            <span class="${item.done ? 'line-through text-zinc-500' : 'text-zinc-200'}">${item.text}</span>
+          </label>
+          <button onclick="deleteImprovement('${item.id}')" class="text-zinc-500 hover:text-red-400 ml-3">Remover</button>
+        </div>
+      `).join('');
+
+      const nowMs = Date.now();
+      const overdue = state.bookings.filter(bk => {
+        const diffDays = Math.floor((nowMs - new Date(bk.date + 'T12:00:00').getTime()) / (1000 * 60 * 60 * 24));
+        return diffDays >= 25;
+      });
+
+      const retList = document.getElementById('retention-list');
+      retList.innerHTML = overdue.length === 0
+        ? `<p class="text-xs text-zinc-400">Todos os clientes estão dentro do ciclo recente.</p>`
+        : overdue.map(bk => {
+            const diffDays = Math.floor((nowMs - new Date(bk.date + 'T12:00:00').getTime()) / (1000 * 60 * 60 * 24));
+            const msg = encodeURIComponent(`Fala ${bk.customerName}, tudo certo? Já faz ${diffDays} dias desde seu último trato aqui na Mr. Barba Valinhos! Bora agendar seu horário desta semana?`);
+            return `
+              <div class="flex flex-wrap items-center justify-between gap-2 bg-zinc-950 border border-zinc-800 p-3 rounded-lg text-xs">
+                <div>
+                  <span class="font-bold text-white">${bk.customerName}</span>
+                  <span class="text-amber-400 ml-2">(${diffDays} dias sem voltar)</span>
+                </div>
+                <a href="https://wa.me/55${bk.customerPhone.replace(/\D/g, '')}?text=${msg}" target="_blank"
+                  class="px-3 py-1.5 rounded-lg font-bold bg-emerald-600 hover:bg-emerald-500 text-white">
+                  Chamar no WhatsApp
+                </a>
+              </div>
+            `;
+          }).join('');
+    }
+
+    function addImprovementItem(e) {
+      e.preventDefault();
+      const input = document.getElementById('improvement-input');
+      const text = input.value.trim();
+      if (!text) return;
+      state.improvements.unshift({ id: 'imp-' + Date.now(), text, done: false });
+      saveImprovements();
+      input.value = '';
+      renderImprovementsAndInsights();
+    }
+
+    function toggleImprovement(id) {
+      const item = state.improvements.find(i => i.id === id);
+      if (item) item.done = !item.done;
+      saveImprovements();
+      renderImprovementsAndInsights();
+    }
+
+    function deleteImprovement(id) {
+      state.improvements = state.improvements.filter(i => i.id !== id);
+      saveImprovements();
+      renderImprovementsAndInsights();
+    }
+
     function resetDemoData() {
       if (confirm('Deseja restaurar os dados originais da demonstração?')) {
-        localStorage.removeItem('mrbarba_bookings_v4');
+        localStorage.removeItem('mrbarba_bookings_v5');
+        localStorage.removeItem('mrbarba_notes_v5');
+        localStorage.removeItem('mrbarba_improvements_v5');
         initApp();
         renderAdmin();
       }
